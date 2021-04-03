@@ -24,8 +24,11 @@
 #include <Library/BlParseLib.h>
 #include <Library/PlatformSupportLib.h>
 #include <Library/UefiCpuLib.h>
+#include <IndustryStandard/Acpi.h>
+#include <IndustryStandard/MemoryMappedConfigurationSpaceAccessTable.h>
 #include <Guid/SerialPortInfoGuid.h>
 #include <Guid/MemoryMapInfoGuid.h>
+#include <Guid/AcpiBoardInfoGuid.h>
 #include <Guid/GraphicsInfoHob.h>
 #include <UniversalPayload/SmbiosTable.h>
 #include <UniversalPayload/AcpiTable.h>
@@ -159,7 +162,6 @@ HandOffToDxeCore (
   IN EFI_PEI_HOB_POINTERS   HobList
   );
 
-<<<<<<< HEAD
 EFI_STATUS
 FixUpPcdDatabase (
   IN  EFI_FIRMWARE_VOLUME_HEADER *DxeFv
@@ -205,16 +207,18 @@ FvFindFileByTypeGuid (
   OUT EFI_FFS_FILE_HEADER         **FileHeader
   );
 /**
-  It will build HOBs based on information from bootloaders.
+  Find the board related info from ACPI table
 
-  @retval EFI_SUCCESS        If it completed successfully.
-  @retval Others             If it failed to build required HOBs.
+  @param  AcpiTableBase          ACPI table start address in memory
+  @param  AcpiBoardInfo          Pointer to the acpi board info strucutre
+
+  @retval RETURN_SUCCESS     Successfully find out all the required information.
+  @retval RETURN_NOT_FOUND   Failed to find the required info.
+
 **/
-EFI_STATUS
-BuildHobs (
-  VOID
+RETURN_STATUS
+ParseAcpiInfo (
+  IN   UINT64                                   AcpiTableBase,
+  OUT  ACPI_BOARD_INFO                          *AcpiBoardInfo
   );
-
-=======
->>>>>>> cdf8102527... Separate UEFI payload entry driver for universal payload
 #endif

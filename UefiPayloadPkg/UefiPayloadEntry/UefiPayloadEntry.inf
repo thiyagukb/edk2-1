@@ -25,6 +25,7 @@
   UefiPayloadEntry.c
   LoadDxeCore.c
   MemoryAllocation.c
+  BuildHobs.c
 
 [Sources.Ia32]
   X64/VirtualMemory.h
@@ -63,6 +64,7 @@
   gUefiSystemTableInfoGuid
   gEfiGraphicsInfoHobGuid
   gEfiGraphicsDeviceInfoHobGuid
+  gUefiAcpiBoardInfoGuid
   gEfiSmbiosTableGuid
   gEfiAcpiTableGuid
 

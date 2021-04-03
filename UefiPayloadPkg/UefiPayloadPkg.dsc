@@ -226,7 +226,6 @@
   PeCoffExtraActionLib|MdePkg/Library/BasePeCoffExtraActionLibNull/BasePeCoffExtraActionLibNull.inf
   DebugAgentLib|MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf
 !endif
-<<<<<<< HEAD
   PlatformSupportLib|UefiPayloadPkg/Library/PlatformSupportLibNull/PlatformSupportLibNull.inf
 !if $(UNIVERSAL_PAYLOAD) == FALSE
   !if $(BOOTLOADER) == "COREBOOT"
@@ -234,15 +233,6 @@
   !else
     BlParseLib|UefiPayloadPkg/Library/SblParseLib/SblParseLib.inf
   !endif
-=======
-
-!if $(BOOTLOADER) == "COREBOOT"
-  BlParseLib|UefiPayloadPkg/Library/CbParseLib/CbParseLib.inf
-  PlatformSupportLib|UefiPayloadPkg/Library/PlatformSupportLibNull/PlatformSupportLibNull.inf
-!else
-  BlParseLib|UefiPayloadPkg/Library/SblParseLib/SblParseLib.inf
-  PlatformSupportLib|UefiPayloadPkg/Library/PlatformSupportLibSbl/PlatformSupportLibSbl.inf
->>>>>>> cdf8102527... Separate UEFI payload entry driver for universal payload
 !endif
 
   DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
