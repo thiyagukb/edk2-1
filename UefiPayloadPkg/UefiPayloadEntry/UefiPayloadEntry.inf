@@ -25,6 +25,7 @@
   UefiPayloadEntry.c
   LoadDxeCore.c
   MemoryAllocation.c
+  BuildHobs.c
 
 [Sources.Ia32]
   X64/VirtualMemory.h
@@ -64,8 +65,8 @@
   gEfiGraphicsInfoHobGuid
   gEfiGraphicsDeviceInfoHobGuid
   gUefiAcpiBoardInfoGuid
-  gUniversalPayloadSmbiosTableGuid
-  gUniversalPayloadAcpiTableGuid
+  gEfiSmbiosTableGuid
+  gEfiAcpiTableGuid
 
 [FeaturePcd.IA32]
   gEfiMdeModulePkgTokenSpaceGuid.PcdDxeIplSwitchToLongMode      ## CONSUMES

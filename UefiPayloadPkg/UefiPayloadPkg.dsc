@@ -25,6 +25,8 @@
   OUTPUT_DIRECTORY                    = Build/UefiPayloadPkgX64
   FLASH_DEFINITION                    = UefiPayloadPkg/UefiPayloadPkg.fdf
 
+
+  DEFINE UNIVERSAL_PAYLOAD            = FALSE
   DEFINE SOURCE_DEBUG_ENABLE          = FALSE
   DEFINE PS2_KEYBOARD_ENABLE          = FALSE
   DEFINE UNIVERSAL_PAYLOAD            = FALSE

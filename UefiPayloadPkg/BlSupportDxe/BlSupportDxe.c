@@ -105,6 +105,8 @@ BlDxeEntryPoint (
   EFI_HOB_GUID_TYPE          *GuidHob;
   EFI_PEI_GRAPHICS_INFO_HOB  *GfxInfo;
   ACPI_BOARD_INFO            *AcpiBoardInfo;
+  ACPI_TABLE_HOB             *AcpiTableHob;
+  SMBIOS_TABLE_HOB           *SmbiosTable;
 
   Status = EFI_SUCCESS;
   //
@@ -113,6 +115,27 @@ BlDxeEntryPoint (
   ReserveResourceInGcd (TRUE, EfiGcdMemoryTypeMemoryMappedIo, 0xFEC00000, SIZE_4KB, 0, ImageHandle); // IOAPIC
 
   ReserveResourceInGcd (TRUE, EfiGcdMemoryTypeMemoryMappedIo, 0xFED00000, SIZE_1KB, 0, ImageHandle); // HPET
+  //
+  // Install Acpi Table
+  //
+  GuidHob = GetFirstGuidHob (&gEfiAcpiTableGuid);
+  if (GuidHob != NULL) {
+    AcpiTableHob = (ACPI_TABLE_HOB *)GET_GUID_HOB_DATA (GuidHob);
+    DEBUG ((DEBUG_ERROR, "Install Acpi Table at 0x%lx \n", AcpiTableHob->TableAddress));
+    Status = gBS->InstallConfigurationTable (&gEfiAcpiTableGuid, (VOID *)(UINTN)AcpiTableHob->TableAddress);
+    ASSERT_EFI_ERROR (Status);
+  }
+
+  //
+  // Install Smbios Table
+  //
+  GuidHob = GetFirstGuidHob (&gEfiSmbiosTableGuid);
+  if (GuidHob != NULL) {
+    SmbiosTable = (SMBIOS_TABLE_HOB *)GET_GUID_HOB_DATA (GuidHob);
+    DEBUG ((DEBUG_ERROR, "Install SMBIOS Table at 0x%lx \n", SmbiosTable->TableAddress));
+    Status = gBS->InstallConfigurationTable (&gEfiSmbiosTableGuid, (VOID *)(UINTN)SmbiosTable->TableAddress);
+    ASSERT_EFI_ERROR (Status);
+  }
 
   //
   // Find the frame buffer information and update PCDs

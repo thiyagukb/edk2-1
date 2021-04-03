@@ -36,6 +36,9 @@
 #include <UniversalPayload/UniversalPayload.h>
 #include <UniversalPayload/ExtraData.h>
 #include <Guid/PcdDataBaseSignatureGuid.h>
+#include <Guid/AcpiTableGuid.h>
+#include <Guid/SmbiosTableGuid.h>
+
 
 #define LEGACY_8259_MASK_REGISTER_MASTER  0x21
 #define LEGACY_8259_MASK_REGISTER_SLAVE   0xA1
@@ -204,4 +207,33 @@ FvFindFileByTypeGuid (
   IN  EFI_GUID                    *Guid           OPTIONAL,
   OUT EFI_FFS_FILE_HEADER         **FileHeader
   );
+/**
+  Find the board related info from ACPI table
+
+  @param  AcpiTableBase          ACPI table start address in memory
+  @param  AcpiBoardInfo          Pointer to the acpi board info strucutre
+
+  @retval RETURN_SUCCESS     Successfully find out all the required information.
+  @retval RETURN_NOT_FOUND   Failed to find the required info.
+
+**/
+RETURN_STATUS
+ParseAcpiInfo (
+  IN   UINT64                                   AcpiTableBase,
+  OUT  ACPI_BOARD_INFO                          *AcpiBoardInfo
+  );
+
+/**
+  It will build HOBs based on information from bootloaders.
+
+  @retval EFI_SUCCESS        If it completed successfully.
+  @retval Others             If it failed to build required HOBs.
+**/
+EFI_STATUS
+BuildHobs (
+  VOID
+  );
+
+
+
 #endif

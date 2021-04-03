@@ -156,63 +156,6 @@ FindToludCallback (
 
 
 /**
-   Callback function to build resource descriptor HOB
-
-   This function build a HOB based on the memory map entry info.
-   Only add EFI_RESOURCE_SYSTEM_MEMORY.
-
-   @param MemoryMapEntry         Memory map entry info got from bootloader.
-   @param Params                 Not used for now.
-
-  @retval RETURN_SUCCESS        Successfully build a HOB.
-**/
-EFI_STATUS
-MemInfoCallback (
-  IN MEMROY_MAP_ENTRY          *MemoryMapEntry,
-  IN VOID                      *Params
-  )
-{
-  EFI_PHYSICAL_ADDRESS         Base;
-  EFI_RESOURCE_TYPE            Type;
-  UINT64                       Size;
-  EFI_RESOURCE_ATTRIBUTE_TYPE  Attribue;
-
-  //
-  // Skip everything not known to be usable DRAM.
-  // It will be added later.
-  //
-  if ((MemoryMapEntry->Type != E820_RAM) && (MemoryMapEntry->Type != E820_ACPI) &&
-    (MemoryMapEntry->Type != E820_NVS)) {
-    return RETURN_SUCCESS;
-  }
-
-  Type    = EFI_RESOURCE_SYSTEM_MEMORY;
-  Base    = MemoryMapEntry->Base;
-  Size    = MemoryMapEntry->Size;
-
-  Attribue = EFI_RESOURCE_ATTRIBUTE_PRESENT |
-             EFI_RESOURCE_ATTRIBUTE_INITIALIZED |
-             EFI_RESOURCE_ATTRIBUTE_TESTED |
-             EFI_RESOURCE_ATTRIBUTE_UNCACHEABLE |
-             EFI_RESOURCE_ATTRIBUTE_WRITE_COMBINEABLE |
-             EFI_RESOURCE_ATTRIBUTE_WRITE_THROUGH_CACHEABLE |
-             EFI_RESOURCE_ATTRIBUTE_WRITE_BACK_CACHEABLE;
-
-  BuildResourceDescriptorHob (Type, Attribue, (EFI_PHYSICAL_ADDRESS)Base, Size);
-  DEBUG ((DEBUG_INFO , "buildhob: base = 0x%lx, size = 0x%lx, type = 0x%x\n", Base, Size, Type));
-
-  if (MemoryMapEntry->Type == E820_ACPI) {
-    BuildMemoryAllocationHob (Base, Size, EfiACPIReclaimMemory);
-  } else if (MemoryMapEntry->Type == E820_NVS) {
-    BuildMemoryAllocationHob (Base, Size, EfiACPIMemoryNVS);
-  }
-
-  return RETURN_SUCCESS;
-}
-
-
-
-/**
   Find the board related info from ACPI table
 
   @param  AcpiTableBase          ACPI table start address in memory
@@ -374,179 +317,6 @@ Done:
 
 
 /**
-  It will build HOBs based on information from bootloaders.
-
-  @retval EFI_SUCCESS        If it completed successfully.
-  @retval Others             If it failed to build required HOBs.
-**/
-EFI_STATUS
-BuildHobFromBl (
-  VOID
-  )
-{
-  EFI_STATUS                       Status;
-  SYSTEM_TABLE_INFO                SysTableInfo;
-  SYSTEM_TABLE_INFO                *NewSysTableInfo;
-  ACPI_BOARD_INFO                  AcpiBoardInfo;
-  ACPI_BOARD_INFO                  *NewAcpiBoardInfo;
-  EFI_PEI_GRAPHICS_INFO_HOB        GfxInfo;
-  EFI_PEI_GRAPHICS_INFO_HOB        *NewGfxInfo;
-  EFI_PEI_GRAPHICS_DEVICE_INFO_HOB GfxDeviceInfo;
-  EFI_PEI_GRAPHICS_DEVICE_INFO_HOB *NewGfxDeviceInfo;
-  UNIVERSAL_PAYLOAD_SMBIOS_TABLE   *SmBiosTableHob;
-  UNIVERSAL_PAYLOAD_ACPI_TABLE     *AcpiTableHob;
-
-  //
-  // First find TOLUD
-  //
-  DEBUG ((DEBUG_INFO , "Guessing Top of Lower Usable DRAM:\n"));
-  Status = ParseMemoryInfo (FindToludCallback, NULL);
-  if (EFI_ERROR(Status)) {
-    return Status;
-  }
-  DEBUG ((DEBUG_INFO , "Assuming TOLUD = 0x%x\n", mTopOfLowerUsableDram));
-
-  //
-  // Parse memory info and build memory HOBs for Usable RAM
-  //
-  DEBUG ((DEBUG_INFO , "Building ResourceDescriptorHobs for usable memory:\n"));
-  Status = ParseMemoryInfo (MemInfoCallback, NULL);
-  if (EFI_ERROR(Status)) {
-    return Status;
-  }
-
-  //
-  // Create guid hob for frame buffer information
-  //
-  Status = ParseGfxInfo (&GfxInfo);
-  if (!EFI_ERROR (Status)) {
-    NewGfxInfo = BuildGuidHob (&gEfiGraphicsInfoHobGuid, sizeof (GfxInfo));
-    ASSERT (NewGfxInfo != NULL);
-    CopyMem (NewGfxInfo, &GfxInfo, sizeof (GfxInfo));
-    DEBUG ((DEBUG_INFO, "Created graphics info hob\n"));
-  }
-
-
-  Status = ParseGfxDeviceInfo (&GfxDeviceInfo);
-  if (!EFI_ERROR (Status)) {
-    NewGfxDeviceInfo = BuildGuidHob (&gEfiGraphicsDeviceInfoHobGuid, sizeof (GfxDeviceInfo));
-    ASSERT (NewGfxDeviceInfo != NULL);
-    CopyMem (NewGfxDeviceInfo, &GfxDeviceInfo, sizeof (GfxDeviceInfo));
-    DEBUG ((DEBUG_INFO, "Created graphics device info hob\n"));
-  }
-
-
-  //
-  // Create guid hob for system tables like acpi table and smbios table
-  //
-  Status = ParseSystemTable(&SysTableInfo);
-  ASSERT_EFI_ERROR (Status);
-  if (!EFI_ERROR (Status)) {
-    NewSysTableInfo = BuildGuidHob (&gUefiSystemTableInfoGuid, sizeof (SYSTEM_TABLE_INFO));
-    ASSERT (NewSysTableInfo != NULL);
-    CopyMem (NewSysTableInfo, &SysTableInfo, sizeof (SYSTEM_TABLE_INFO));
-    DEBUG ((DEBUG_INFO, "Detected Acpi Table at 0x%lx, length 0x%x\n", SysTableInfo.AcpiTableBase, SysTableInfo.AcpiTableSize));
-    DEBUG ((DEBUG_INFO, "Detected Smbios Table at 0x%lx, length 0x%x\n", SysTableInfo.SmbiosTableBase, SysTableInfo.SmbiosTableSize));
-  }
-  //
-  // Creat SmBios table Hob
-  //
-  SmBiosTableHob = BuildGuidHob (&gUniversalPayloadSmbiosTableGuid, sizeof (UNIVERSAL_PAYLOAD_SMBIOS_TABLE));
-  ASSERT (SmBiosTableHob != NULL);
-  SmBiosTableHob->Header.Revision = UNIVERSAL_PAYLOAD_SMBIOS_TABLE_REVISION;
-  SmBiosTableHob->Header.Length = sizeof (UNIVERSAL_PAYLOAD_SMBIOS_TABLE);
-  SmBiosTableHob->SmBiosEntryPoint = SysTableInfo.SmbiosTableBase;
-  DEBUG ((DEBUG_INFO, "Create smbios table gUniversalPayloadSmbiosTableGuid guid hob\n"));
-
-  //
-  // Creat ACPI table Hob
-  //
-  AcpiTableHob = BuildGuidHob (&gUniversalPayloadAcpiTableGuid, sizeof (UNIVERSAL_PAYLOAD_ACPI_TABLE));
-  ASSERT (AcpiTableHob != NULL);
-  AcpiTableHob->Header.Revision = UNIVERSAL_PAYLOAD_ACPI_TABLE_REVISION;
-  AcpiTableHob->Header.Length = sizeof (UNIVERSAL_PAYLOAD_ACPI_TABLE);
-  AcpiTableHob->Rsdp = SysTableInfo.AcpiTableBase;
-  DEBUG ((DEBUG_INFO, "Create smbios table gUniversalPayloadAcpiTableGuid guid hob\n"));
-
-  //
-  // Create guid hob for acpi board information
-  //
-  Status = ParseAcpiInfo (SysTableInfo.AcpiTableBase, &AcpiBoardInfo);
-  ASSERT_EFI_ERROR (Status);
-  if (!EFI_ERROR (Status)) {
-    NewAcpiBoardInfo = BuildGuidHob (&gUefiAcpiBoardInfoGuid, sizeof (ACPI_BOARD_INFO));
-    ASSERT (NewAcpiBoardInfo != NULL);
-    CopyMem (NewAcpiBoardInfo, &AcpiBoardInfo, sizeof (ACPI_BOARD_INFO));
-    DEBUG ((DEBUG_INFO, "Create acpi board info guid hob\n"));
-  }
-
-  //
-  // Parse memory info and build memory HOBs for reserved DRAM and MMIO
-  //
-  DEBUG ((DEBUG_INFO , "Building ResourceDescriptorHobs for reserved memory:\n"));
-  Status = ParseMemoryInfo (MemInfoCallbackMmio, &AcpiBoardInfo);
-  if (EFI_ERROR(Status)) {
-    return Status;
-  }
-
-  //
-  // Parse platform specific information.
-  //
-  Status = ParsePlatformInfo ();
-  if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Error when parsing platform info, Status = %r\n", Status));
-    return Status;
-  }
-
-  return EFI_SUCCESS;
-}
-
-
-/**
-  This function will build some generic HOBs that doesn't depend on information from bootloaders.
-
-**/
-VOID
-BuildGenericHob (
-  VOID
-  )
-{
-  UINT32                           RegEax;
-  UINT8                            PhysicalAddressBits;
-  EFI_RESOURCE_ATTRIBUTE_TYPE      ResourceAttribute;
-
-  // The UEFI payload FV
-  BuildMemoryAllocationHob (PcdGet32 (PcdPayloadFdMemBase), PcdGet32 (PcdPayloadFdMemSize), EfiBootServicesData);
-
-  //
-  // Build CPU memory space and IO space hob
-  //
-  AsmCpuid (0x80000000, &RegEax, NULL, NULL, NULL);
-  if (RegEax >= 0x80000008) {
-    AsmCpuid (0x80000008, &RegEax, NULL, NULL, NULL);
-    PhysicalAddressBits = (UINT8) RegEax;
-  } else {
-    PhysicalAddressBits  = 36;
-  }
-
-  BuildCpuHob (PhysicalAddressBits, 16);
-
-  //
-  // Report Local APIC range, cause sbl HOB to be NULL, comment now
-  //
-  ResourceAttribute = (
-      EFI_RESOURCE_ATTRIBUTE_PRESENT |
-      EFI_RESOURCE_ATTRIBUTE_INITIALIZED |
-      EFI_RESOURCE_ATTRIBUTE_UNCACHEABLE |
-      EFI_RESOURCE_ATTRIBUTE_TESTED
-  );
-  BuildResourceDescriptorHob (EFI_RESOURCE_MEMORY_MAPPED_IO, ResourceAttribute, 0xFEC80000, SIZE_512KB);
-  BuildMemoryAllocationHob ( 0xFEC80000, SIZE_512KB, EfiMemoryMappedIO);
-
-}
-
-
-/**
   Entry point to the C language phase of UEFI payload.
 
   @retval      It will not return if SUCCESS, and return error when passing bootloader parameter.
@@ -563,12 +333,20 @@ PayloadEntry (
   UINTN                         HobMemBase;
   UINTN                         HobMemTop;
   EFI_PEI_HOB_POINTERS          Hob;
+  SERIAL_PORT_INFO              SerialPortInfo;
+
+
+
+  Status = ParseSerialInfo (&SerialPortInfo);
+  if (!EFI_ERROR (Status)) {
+    CopyMem (GET_BOOTLOADER_PARAMETER_ADDR(3), &SerialPortInfo, sizeof(SERIAL_PORT_INFO));
+  }
 
   // Call constructor for all libraries
   ProcessLibraryConstructorList ();
-
-  DEBUG ((DEBUG_INFO, "GET_BOOTLOADER_PARAMETER() = 0x%lx\n", GET_BOOTLOADER_PARAMETER()));
+  DEBUG ((DEBUG_INFO, "GET_BOOTLOADER_PARAMETER() = 0x%lx\n", GET_BOOTLOADER_PARAMETER(1)));
   DEBUG ((DEBUG_INFO, "sizeof(UINTN) = 0x%x\n", sizeof(UINTN)));
+
 
   // Initialize floating point operating environment to be compliant with UEFI spec.
   InitializeFloatingPointUnits ();
@@ -581,14 +359,11 @@ PayloadEntry (
   HobConstructor ((VOID *)MemBase, (VOID *)HobMemTop, (VOID *)HobMemBase, (VOID *)HobMemTop);
 
   // Build HOB based on information from Bootloader
-  Status = BuildHobFromBl ();
+  Status = BuildHobs ();
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "BuildHobFromBl Status = %r\n", Status));
+    DEBUG ((DEBUG_ERROR, "BuildHobs Status = %r\n", Status));
     return Status;
   }
-
-  // Build other HOBs required by DXE
-  BuildGenericHob ();
 
   // Load the DXE Core
   Status = LoadDxeCore (&DxeCoreEntryPoint);
