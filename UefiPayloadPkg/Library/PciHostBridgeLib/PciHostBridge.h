@@ -12,6 +12,7 @@
 #define _PCI_HOST_BRIDGE_H
 
 #include <UniversalPayload/PciRootBridges.h>
+#include <Guid/PciRootBridgeInfoGuid.h>
 
 typedef struct {
   ACPI_HID_DEVICE_PATH     AcpiDevicePath;
@@ -31,18 +32,18 @@ ScanForRootBridges (
 );
 
 /**
-  Scan for all root bridges from Universal Payload PciRootBridgeInfoHob
+  Scan for all root bridges from PciRootBridgeInfoHob
 
-  @param[in]  PciRootBridgeInfo    Pointer of Universal Payload PCI Root Bridge Info Hob
+  @param[in]  PciRootBridgeInfo    Pointer of PCI Root Bridge Info Hob
   @param[out] NumberOfRootBridges  Number of root bridges detected
 
   @retval     Pointer to the allocated PCI_ROOT_BRIDGE structure array.
 
 **/
 PCI_ROOT_BRIDGE *
-RetrieveRootBridgeInfoFromHob (
-  IN  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES  *PciRootBridgeInfo,
-  OUT UINTN                               *NumberOfRootBridges
+ScanForRootBridgesFromHob (
+  IN  PCI_ROOT_BRIDGE_INFO_HOB  *PciRootBridgeInfo,
+  OUT UINTN                     *NumberOfRootBridges
 );
 
 /**

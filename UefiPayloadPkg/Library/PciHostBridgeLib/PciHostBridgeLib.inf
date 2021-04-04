@@ -28,10 +28,12 @@
   PciHostBridge.h
   PciHostBridgeLib.c
   PciHostBridgeSupport.c
+  PciHostBridgeSupportHob.c
 
 [Packages]
   MdeModulePkg/MdeModulePkg.dec
   MdePkg/MdePkg.dec
+  UefiPayloadPkg/UefiPayloadPkg.dec
 
 [LibraryClasses]
   BaseMemoryLib
@@ -42,6 +44,8 @@
 
 [Guids]
   gUniversalPayloadPciRootBridgeInfoGuid
+  gLoaderPciRootBridgeInfoGuid
 
 [Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress
   gEfiMdeModulePkgTokenSpaceGuid.PcdPciDisableBusEnumeration

@@ -50,6 +50,34 @@ CB_PCI_ROOT_BRIDGE_DEVICE_PATH mRootBridgeDevicePathTemplate = {
 };
 
 /**
+  Get a pointer of PCI Root Bridge Info Hob
+
+  @retval                      Pointer of PCI Root Bridge Info Hob
+
+**/
+STATIC
+PCI_ROOT_BRIDGE_INFO_HOB *
+GetPciRootBridgeInfoHob (
+  VOID
+  )
+{
+  EFI_HOB_GUID_TYPE             *GuidHob;
+  PCI_ROOT_BRIDGE_INFO_HOB      *PciRootBridgeInfo;
+
+  //
+  // Find PCI Root Bridge Info hob
+  //
+  GuidHob = GetFirstGuidHob (&gLoaderPciRootBridgeInfoGuid);
+  if (GuidHob != NULL) {
+    PciRootBridgeInfo = (PCI_ROOT_BRIDGE_INFO_HOB *) GET_GUID_HOB_DATA (GuidHob);
+  } else {
+    PciRootBridgeInfo = NULL;
+  }
+
+  return PciRootBridgeInfo;
+}
+
+/**
   Initialize a PCI_ROOT_BRIDGE structure.
 
   @param[in]  Supports         Supported attributes.
@@ -182,28 +210,15 @@ PciHostBridgeGetRootBridges (
   UINTN *Count
 )
 {
-  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES  *PciRootBridgeInfo;
-  EFI_HOB_GUID_TYPE                   *GuidHob;
-  UNIVERSAL_PAYLOAD_GENERIC_HEADER    *GenericHeader;
-  //
-  // Find Universal Payload PCI Root Bridge Info hob
-  //
-  GuidHob = GetFirstGuidHob (&gUniversalPayloadPciRootBridgeInfoGuid);
-  if (GuidHob != NULL) {
-    GenericHeader = (UNIVERSAL_PAYLOAD_GENERIC_HEADER *) GET_GUID_HOB_DATA (GuidHob);
-    if ((sizeof(UNIVERSAL_PAYLOAD_GENERIC_HEADER) <= GET_GUID_HOB_DATA_SIZE (GuidHob)) && (GenericHeader->Length <= GET_GUID_HOB_DATA_SIZE (GuidHob))) {
-      if ((GenericHeader->Revision == UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES_REVISION) && (GenericHeader->Length >= sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES))) {
-        //
-        // UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES structure is used when Revision equals to UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES_REVISION
-        //
-        PciRootBridgeInfo = (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES *) GET_GUID_HOB_DATA (GuidHob);
-        if (PciRootBridgeInfo->Count <= (GET_GUID_HOB_DATA_SIZE (GuidHob) - sizeof(UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES)) / sizeof(UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE)) {
-          return RetrieveRootBridgeInfoFromHob (PciRootBridgeInfo, Count);
-        }
-      }
-    }
+  PCI_ROOT_BRIDGE_INFO_HOB *PciRootBridgeInfo;
+
+  PciRootBridgeInfo = GetPciRootBridgeInfoHob ();
+  if (PciRootBridgeInfo != NULL) {
+    DEBUG ((DEBUG_INFO, "Use RootBridge info from bootloader HOB\n"));
+    return ScanForRootBridgesFromHob (PciRootBridgeInfo, Count);
+  } else {
+    return ScanForRootBridges (Count);
   }
-  return ScanForRootBridges (Count);
 }
 
 /**
