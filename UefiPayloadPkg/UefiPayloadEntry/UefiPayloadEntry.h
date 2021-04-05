@@ -24,11 +24,8 @@
 #include <Library/BlParseLib.h>
 #include <Library/PlatformSupportLib.h>
 #include <Library/UefiCpuLib.h>
-#include <IndustryStandard/Acpi.h>
-#include <IndustryStandard/MemoryMappedConfigurationSpaceAccessTable.h>
 #include <Guid/SerialPortInfoGuid.h>
 #include <Guid/MemoryMapInfoGuid.h>
-#include <Guid/AcpiBoardInfoGuid.h>
 #include <Guid/GraphicsInfoHob.h>
 #include <UniversalPayload/SmbiosTable.h>
 #include <UniversalPayload/AcpiTable.h>
@@ -207,22 +204,6 @@ FvFindFileByTypeGuid (
   OUT EFI_FFS_FILE_HEADER         **FileHeader
   );
 /**
-  Find the board related info from ACPI table
-
-  @param  AcpiTableBase          ACPI table start address in memory
-  @param  AcpiBoardInfo          Pointer to the acpi board info strucutre
-
-  @retval RETURN_SUCCESS     Successfully find out all the required information.
-  @retval RETURN_NOT_FOUND   Failed to find the required info.
-
-**/
-RETURN_STATUS
-ParseAcpiInfo (
-  IN   UINT64                                   AcpiTableBase,
-  OUT  ACPI_BOARD_INFO                          *AcpiBoardInfo
-  );
-
-/**
   It will build HOBs based on information from bootloaders.
 
   @retval EFI_SUCCESS        If it completed successfully.
@@ -232,7 +213,5 @@ EFI_STATUS
 BuildHobs (
   VOID
   );
-
-
 
 #endif
