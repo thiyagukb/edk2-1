@@ -41,6 +41,13 @@
 
 
   #
+  # TRUE:  Use EMU variable driver.
+  # FALSE: Use real variable driver.
+  #
+  DEFINE EMU_VARIABLE_ENABLE          = FALSE
+  DEFINE SMM_SUPPORT                  = TRUE
+
+  #
   # CPU options
   #
   DEFINE MAX_LOGICAL_PROCESSORS       = 64
