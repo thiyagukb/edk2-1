@@ -326,7 +326,7 @@ PlatformBootManagerLibConstructor (
   }
   if (GenericHeader->Revision == UNIVERSAL_PAYLOAD_BOOT_MANAGER_MENU_REVISION) {
     BootManagerMenuFile = (UNIVERSAL_PAYLOAD_BOOT_MANAGER_MENU *) GET_GUID_HOB_DATA (GuidHob);
-    if (BootManagerMenuFile->Header.Length < UNIVERSAL_PAYLOAD_SIZEOF_THROUGH_FIELD (UNIVERSAL_PAYLOAD_BOOT_MANAGER_MENU, FileName)) {
+    if (BootManagerMenuFile->Header.Length < UNIVERSAL_PAYLOAD_SIZEOF_THROUGH_FIELD(UNIVERSAL_PAYLOAD_BOOT_MANAGER_MENU, FileName)) {
       return EFI_NOT_FOUND;
     }
     Size = sizeof (BootManagerMenuFile->FileName);

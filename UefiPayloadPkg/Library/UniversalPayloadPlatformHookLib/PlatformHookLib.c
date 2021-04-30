@@ -8,6 +8,7 @@
 
 #include <Base.h>
 #include <PiDxe.h>
+#include <UniversalPayload/UniversalPayload.h>
 #include <UniversalPayload/SerialPortInfo.h>
 #include <Library/PlatformHookLib.h>
 #include <Library/PcdLib.h>

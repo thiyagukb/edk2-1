@@ -26,8 +26,8 @@
   DxeHobListLib
 
 [Packages]
-  MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
+  MdePkg/MdePkg.dec
   UefiPayloadPkg/UefiPayloadPkg.dec
 
 [Guids]
