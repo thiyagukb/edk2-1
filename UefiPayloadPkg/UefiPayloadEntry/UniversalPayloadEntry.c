@@ -196,6 +196,9 @@ _ModuleEntryPoint (
   PHYSICAL_ADDRESS              DxeCoreEntryPoint;
   EFI_HOB_HANDOFF_INFO_TABLE    *HandoffHobTable;
   EFI_PEI_HOB_POINTERS          Hob;
+  PLD_EXTRA_DATA                *ExtraData;
+  UINT8                         *GuidHob;
+  EFI_FIRMWARE_VOLUME_HEADER    *DxeFv;
 
   mHobList = (VOID *) BootloaderParameter;
   // Call constructor for all libraries
@@ -213,6 +216,18 @@ _ModuleEntryPoint (
     return Status;
   }
 
+  //
+  // Get DXE FV location
+  //
+  GuidHob = GetFirstGuidHob(&gPldExtraDataGuid);
+  ASSERT (GuidHob != NULL);
+  ExtraData = (PLD_EXTRA_DATA *) GET_GUID_HOB_DATA (GuidHob);
+  ASSERT (ExtraData->Count == 1);
+  ASSERT (AsciiStrCmp (ExtraData->Entry[0].Identifier, "uefi_fv") == 0);
+
+  DxeFv = (EFI_FIRMWARE_VOLUME_HEADER *) (UINTN) ExtraData->Entry[0].Base;
+  ASSERT (DxeFv->FvLength == ExtraData->Entry[0].Size);
+  Status = LoadDxeCore (DxeFv, &DxeCoreEntryPoint);
   // Load the DXE Core
   Status = LoadDxeCore (&DxeCoreEntryPoint);
   ASSERT_EFI_ERROR (Status);
