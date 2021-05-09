@@ -34,9 +34,6 @@
 #include <Guid/PcdDataBaseSignatureGuid.h>
 #include <Guid/AcpiTableGuid.h>
 #include <Guid/SmbiosTableGuid.h>
-#include <Guid/SmramMemoryReserve.h>
-#include <Guid/SmmRegisterInfoGuid.h>
-#include <Guid/SmmS3CommunicationInfoGuid.h>
 
 
 #define LEGACY_8259_MASK_REGISTER_MASTER  0x21
@@ -162,6 +159,7 @@ HandOffToDxeCore (
   IN EFI_PEI_HOB_POINTERS   HobList
   );
 
+<<<<<<< HEAD
 EFI_STATUS
 FixUpPcdDatabase (
   IN  EFI_FIRMWARE_VOLUME_HEADER *DxeFv
@@ -217,4 +215,6 @@ BuildHobs (
   VOID
   );
 
+=======
+>>>>>>> cdf8102527... Separate UEFI payload entry driver for universal payload
 #endif
