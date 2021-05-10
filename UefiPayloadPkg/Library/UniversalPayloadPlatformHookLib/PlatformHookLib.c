@@ -37,7 +37,7 @@ PlatformHookSerialPortInitialize (
   RETURN_STATUS         Status;
   PLD_SERIAL_PORT_INFO  *SerialPortInfo;
   UINT8                 *GuidHob;
-
+  IoWrite8(0x3f8,')');
   GuidHob = GetFirstGuidHob (&gPldSerialPortInfoGuid);
   if (GuidHob == NULL) {
     return EFI_NOT_FOUND;
@@ -48,6 +48,7 @@ PlatformHookSerialPortInitialize (
     //
     // Retrun if can't find the ACPI Info Hob with correct revision.
     //
+    IoWrite8(0x3f8,'(');
     return EFI_NOT_FOUND;
   }
   Status = PcdSetBoolS (PcdSerialUseMmio, SerialPortInfo->UseMmio);

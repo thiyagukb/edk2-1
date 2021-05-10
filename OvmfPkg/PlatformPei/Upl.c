@@ -13,16 +13,15 @@
 #include <Library/PeiServicesLib.h>
 #include <Library/PcdLib.h>
 #include <Library/MemoryAllocationLib.h>
-#include <Guid/SerialPortInfo.h>
+#include <UniversalPayload/SerialPortInfo.h>
 #include <Guid/AcpiBoardInfoGuid.h>
 #include <Protocol/DevicePath.h>
-#include <Guid/PldPciRootBridgeInfoHob.h>
+#include <UniversalPayload/PciRootBridges.h>
 #include <Library/QemuFwCfgLib.h>
 #include <OvmfPlatforms.h>
-#include <Guid/PldPciRootBridgeInfoHob.h>
 #include <Library/BaseMemoryLib.h>
 
-STATIC PCI_ROOT_BRIDGE_APERTURE mNonExistAperture = { MAX_UINT64, 0 };
+STATIC PLD_PCI_ROOT_BRIDGE_APERTURE mNonExistAperture = { MAX_UINT64, 0 };
 
 EFI_STATUS
 EFIAPI
@@ -34,11 +33,11 @@ PciHostBridgeUtilityInitRootBridge1 (
   IN  BOOLEAN                  NoExtendedConfigSpace,
   IN  UINT8                    RootBusNumber,
   IN  UINT8                    MaxSubBusNumber,
-  IN  PCI_ROOT_BRIDGE_APERTURE *Io,
-  IN  PCI_ROOT_BRIDGE_APERTURE *Mem,
-  IN  PCI_ROOT_BRIDGE_APERTURE *MemAbove4G,
-  IN  PCI_ROOT_BRIDGE_APERTURE *PMem,
-  IN  PCI_ROOT_BRIDGE_APERTURE *PMemAbove4G,
+  IN  PLD_PCI_ROOT_BRIDGE_APERTURE *Io,
+  IN  PLD_PCI_ROOT_BRIDGE_APERTURE *Mem,
+  IN  PLD_PCI_ROOT_BRIDGE_APERTURE *MemAbove4G,
+  IN  PLD_PCI_ROOT_BRIDGE_APERTURE *PMem,
+  IN  PLD_PCI_ROOT_BRIDGE_APERTURE *PMemAbove4G,
   OUT PLD_PCI_ROOT_BRIDGE      *RootBus
   )
 {
@@ -88,11 +87,11 @@ PciHostBridgeUtilityGetRootBridges (
   IN  BOOLEAN                  NoExtendedConfigSpace,
   IN  UINTN                    BusMin,
   IN  UINTN                    BusMax,
-  IN  PCI_ROOT_BRIDGE_APERTURE *Io,
-  IN  PCI_ROOT_BRIDGE_APERTURE *Mem,
-  IN  PCI_ROOT_BRIDGE_APERTURE *MemAbove4G,
-  IN  PCI_ROOT_BRIDGE_APERTURE *PMem,
-  IN  PCI_ROOT_BRIDGE_APERTURE *PMemAbove4G
+  IN  PLD_PCI_ROOT_BRIDGE_APERTURE *Io,
+  IN  PLD_PCI_ROOT_BRIDGE_APERTURE *Mem,
+  IN  PLD_PCI_ROOT_BRIDGE_APERTURE *MemAbove4G,
+  IN  PLD_PCI_ROOT_BRIDGE_APERTURE *PMem,
+  IN  PLD_PCI_ROOT_BRIDGE_APERTURE *PMemAbove4G
   )
 {
   EFI_STATUS           Status;
@@ -245,9 +244,9 @@ PciHostBridgeGetRootBridges1 (
 {
   UINT64               Attributes;
   UINT64               AllocationAttributes;
-  PCI_ROOT_BRIDGE_APERTURE Io;
-  PCI_ROOT_BRIDGE_APERTURE Mem;
-  PCI_ROOT_BRIDGE_APERTURE MemAbove4G;
+  PLD_PCI_ROOT_BRIDGE_APERTURE Io;
+  PLD_PCI_ROOT_BRIDGE_APERTURE Mem;
+  PLD_PCI_ROOT_BRIDGE_APERTURE MemAbove4G;
 
   ZeroMem (&Io, sizeof (Io));
   ZeroMem (&Mem, sizeof (Mem));
@@ -307,7 +306,7 @@ UplInitialization (
   EFI_FIRMWARE_VOLUME_HEADER        *UplFv;
   PLD_SERIAL_PORT_INFO              *Serial;
   ACPI_BOARD_INFO                   *AcpiBoardInfo;
-  PLD_PCI_ROOT_BRIDGE_INFO_HOB      *PciRootBridgeInfo;
+  PLD_PCI_ROOT_BRIDGES              *PciRootBridgeInfo;
   UINT16                            HostBridgeDevId;
   UINTN                             Pmba;
 
@@ -337,6 +336,7 @@ UplInitialization (
 
 
   Serial = BuildGuidHob (&gPldSerialPortInfoGuid, sizeof (PLD_SERIAL_PORT_INFO));
+  Serial->PldHeader.Revision = 0;
   Serial->BaudRate = PcdGet32 (PcdSerialBaudRate);
   Serial->RegisterBase = PcdGet64 (PcdSerialRegisterBase);
   Serial->RegisterWidth = (UINT8) PcdGet32 (PcdSerialRegisterStride);

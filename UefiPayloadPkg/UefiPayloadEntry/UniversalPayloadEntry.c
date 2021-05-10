@@ -144,7 +144,7 @@ BuildHobs (
     FreeMemoryBottom = Hob.HandoffInformationTable->EfiMemoryTop;
     FreeMemoryTop    = FreeMemoryBottom + MinimalNeededSize;
     MemoryTop        = FreeMemoryTop;
-    HobConstructor ((VOID *)MemoryBottom, (VOID *)MemoryTop, (VOID *)FreeMemoryBottom, (VOID *)FreeMemoryTop);
+    HobConstructor ((VOID *) (UINTN) MemoryBottom, (VOID *) (UINTN) MemoryTop, (VOID *) (UINTN) FreeMemoryBottom, (VOID *) (UINTN) FreeMemoryTop);
   } else if (Hob.HandoffInformationTable->EfiMemoryBottom - ResourceHob->PhysicalStart >= MinimalNeededSize) {
     //
     // New availiable Memory range in new hob is right below memory bottom in old hob.
@@ -153,7 +153,7 @@ BuildHobs (
     FreeMemoryBottom = MemoryBottom;
     FreeMemoryTop    = Hob.HandoffInformationTable->EfiMemoryBottom;
     MemoryTop        = Hob.HandoffInformationTable->EfiMemoryTop;
-    HobConstructor ((VOID *)MemoryBottom, (VOID *)MemoryTop, (VOID *)FreeMemoryBottom, (VOID *)FreeMemoryTop);
+    HobConstructor ((VOID *) (UINTN) MemoryBottom, (VOID *) (UINTN) MemoryTop, (VOID *) (UINTN) FreeMemoryBottom, (VOID *) (UINTN) FreeMemoryTop);
   } else {
     //
     // In the Resource Descriptor HOB contains boot loader Hob, there is no enough free memory size for payload hob
@@ -201,9 +201,11 @@ _ModuleEntryPoint (
   EFI_FIRMWARE_VOLUME_HEADER    *DxeFv;
 
   mHobList = (VOID *) BootloaderParameter;
+  IoWrite8(0x3f8, 'a');
+  IoWrite8(0x3f8, 'b');
   // Call constructor for all libraries
   ProcessLibraryConstructorList ();
-
+  IoWrite8(0x3f8, 'c');
   DEBUG ((DEBUG_INFO, "sizeof(UINTN) = 0x%x\n", sizeof(UINTN)));
 
   // Initialize floating point operating environment to be compliant with UEFI spec.
@@ -227,9 +229,9 @@ _ModuleEntryPoint (
 
   DxeFv = (EFI_FIRMWARE_VOLUME_HEADER *) (UINTN) ExtraData->Entry[0].Base;
   ASSERT (DxeFv->FvLength == ExtraData->Entry[0].Size);
-  Status = LoadDxeCore (DxeFv, &DxeCoreEntryPoint);
+  Status = UniversalLoadDxeCore (DxeFv, &DxeCoreEntryPoint);
   // Load the DXE Core
-  Status = LoadDxeCore (&DxeCoreEntryPoint);
+
   ASSERT_EFI_ERROR (Status);
 
   DEBUG ((DEBUG_INFO, "DxeCoreEntryPoint = 0x%lx\n", DxeCoreEntryPoint));
