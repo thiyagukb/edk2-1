@@ -63,8 +63,8 @@
   gUefiSystemTableInfoGuid
   gEfiGraphicsInfoHobGuid
   gEfiGraphicsDeviceInfoHobGuid
-  gEfiSmbiosTableGuid
-  gEfiAcpiTableGuid
+  gUniversalPayloadSmbiosTableGuid
+  gUniversalPayloadAcpiTableGuid
 
 [FeaturePcd.IA32]
   gEfiMdeModulePkgTokenSpaceGuid.PcdDxeIplSwitchToLongMode      ## CONSUMES

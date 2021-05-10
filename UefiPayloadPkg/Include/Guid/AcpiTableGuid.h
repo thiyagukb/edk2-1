@@ -9,6 +9,7 @@
 #ifndef __ACPI_TABLE_GUID_H__
 #define __ACPI_TABLE_GUID_H__
 
+#include <Uefi.h>
 ///
 /// ACPI TABLE HOB GUID
 ///

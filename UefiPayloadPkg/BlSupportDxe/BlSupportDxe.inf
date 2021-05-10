@@ -42,8 +42,7 @@
   HobLib
 
 [Guids]
-  gEfiAcpiTableGuid
-  gEfiSmbiosTableGuid
+  gUniversalPayloadAcpiTableGuid
   gEfiGraphicsInfoHobGuid
 
 [Pcd]

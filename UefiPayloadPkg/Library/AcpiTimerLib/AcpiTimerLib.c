@@ -17,6 +17,8 @@
 
 #define ACPI_TIMER_COUNT_SIZE  BIT24
 
+
+extern EFI_GUID gUniversalPayloadAcpiTableGuid;
 UINT32   mPmTimerReg = 0;
 
 /**
@@ -84,16 +86,16 @@ AcpiTimerLibConstructor (
   )
 {
   EFI_HOB_GUID_TYPE  *GuidHob;
-  ACPI_TABLE_HOB     *AcpiTableHob;
+  ACPI_TABLE_HOB *AcpiTableHob;
 
   //
   // Find the acpi table information guid hob
   //
-  GuidHob = GetFirstGuidHob (&gEfiAcpiTableGuid);
+  GuidHob = GetFirstGuidHob (&gUniversalPayloadAcpiTableGuid);
   ASSERT (GuidHob != NULL);
 
   AcpiTableHob = (ACPI_TABLE_HOB *)GET_GUID_HOB_DATA (GuidHob);
-  mPmTimerReg = (UINTN)GetPmTimerRegister (AcpiTableHob->TableAddress);
+  mPmTimerReg = (UINTN)GetPmTimerRegister ((UINT64)(UINTN)AcpiTableHob->TableAddress);
 
   return EFI_SUCCESS;
 }

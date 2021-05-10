@@ -1,5 +1,5 @@
 /** @file
- Define the GUID gPldSmbios3TableGuid and gPldSmbiosTableGuid HOB struct.
+ Define the GUID gPldSmbios3TableGuid and gUniversalPayloadSmbiosTableGuid HOB struct.
 
 Copyright (c) 2021, Intel Corporation. All rights reserved.<BR>
 SPDX-License-Identifier: BSD-2-Clause-Patent
@@ -20,5 +20,5 @@ typedef struct {
 #pragma pack()
 
 extern GUID gPldSmbios3TableGuid;
-extern GUID gPldSmbiosTableGuid;
+extern GUID gUniversalPayloadSmbiosTableGuid;
 #endif

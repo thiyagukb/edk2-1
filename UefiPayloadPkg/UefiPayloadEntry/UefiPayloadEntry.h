@@ -27,13 +27,11 @@
 #include <Guid/SerialPortInfoGuid.h>
 #include <Guid/MemoryMapInfoGuid.h>
 #include <Guid/GraphicsInfoHob.h>
-#include <UniversalPayload/SmbiosTable.h>
-#include <UniversalPayload/AcpiTable.h>
-#include <UniversalPayload/UniversalPayload.h>
-#include <UniversalPayload/ExtraData.h>
-#include <Guid/PcdDataBaseSignatureGuid.h>
+#include <Guid/SmBiosTableHob.h>
 #include <Guid/AcpiTableGuid.h>
-#include <Guid/SmbiosTableGuid.h>
+#include <UniversalPayload/UniversalPayload.h>
+#include <Guid/PcdDataBaseSignatureGuid.h>
+#include <UniversalPayload/ExtraData.h>
 
 
 #define LEGACY_8259_MASK_REGISTER_MASTER  0x21
