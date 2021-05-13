@@ -356,6 +356,8 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdConOutGopSupport|TRUE
   gEfiMdeModulePkgTokenSpaceGuid.PcdConOutUgaSupport|FALSE
   gUefiCpuPkgTokenSpaceGuid.PcdCpuSmmEnableBspElection|FALSE
+  gEfiMdePkgTokenSpaceGuid.PcdStandalonePcdDatabaseEnable|TRUE
+  gUefiPayloadPkgTokenSpaceGuid.PcdUniversalPayloadEnable | $(UNIVERSAL_PAYLOAD)
 
 [PcdsFixedAtBuild]
   gEfiMdeModulePkgTokenSpaceGuid.PcdMaxVariableSize|0x10000
@@ -631,7 +633,7 @@
   UefiPayloadPkg/PchSmiDispatchSmm/PchSmiDispatchSmm.inf
   UefiCpuPkg/PiSmmCpuDxeSmm/PiSmmCpuDxeSmm.inf
   UefiCpuPkg/CpuIo2Smm/CpuIo2Smm.inf
-!endif 
+!endif
 
 !if $(EMU_VARIABLE_ENABLE) == TRUE
   MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
