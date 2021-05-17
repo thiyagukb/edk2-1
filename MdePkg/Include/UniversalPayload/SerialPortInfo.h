@@ -16,7 +16,7 @@ typedef struct {
   PLD_GENERIC_HEADER   PldHeader;
   UINT16               Revision;
   BOOLEAN              UseMmio;
-  UINT8                RegisterWidth;
+  UINT8                RegisterStride;
   UINT32               BaudRate;
   UINT64               RegisterBase;
 } PLD_SERIAL_PORT_INFO;

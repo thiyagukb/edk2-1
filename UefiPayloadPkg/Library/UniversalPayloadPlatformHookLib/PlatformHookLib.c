@@ -57,7 +57,7 @@ PlatformHookSerialPortInitialize (
     return Status;
   }
 
-  Status = PcdSet32S (PcdSerialRegisterStride, SerialPortInfo->RegisterWidth);
+  Status = PcdSet32S (PcdSerialRegisterStride, SerialPortInfo->RegisterStride);
   if (RETURN_ERROR (Status)) {
     return Status;
   }

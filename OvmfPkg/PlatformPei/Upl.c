@@ -340,7 +340,7 @@ UplInitialization (
   Serial->PldHeader.Revision = 0;
   Serial->BaudRate = PcdGet32 (PcdSerialBaudRate);
   Serial->RegisterBase = PcdGet64 (PcdSerialRegisterBase);
-  Serial->RegisterWidth = (UINT8) PcdGet32 (PcdSerialRegisterStride);
+  Serial->RegisterStride = (UINT8) PcdGet32 (PcdSerialRegisterStride);
   Serial->Revision = 1;
   Serial->UseMmio = PcdGetBool (PcdSerialUseMmio);
 

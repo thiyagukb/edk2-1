@@ -193,7 +193,7 @@ ParseSerialInfo (
 
   SerialPortInfo->Reversion     = BlSerialInfo->Revision;
   SerialPortInfo->UseMmio       = (BlSerialInfo->Type == PLD_SERIAL_TYPE_MEMORY_MAPPED)?TRUE:FALSE;
-  SerialPortInfo->RegisterWidth = (UINT8)BlSerialInfo->RegWidth;
+  SerialPortInfo->RegisterStride = (UINT8)BlSerialInfo->RegWidth;
   SerialPortInfo->BaudRate      = BlSerialInfo->Baud;
   SerialPortInfo->RegisterBase  = BlSerialInfo->BaseAddr;
 

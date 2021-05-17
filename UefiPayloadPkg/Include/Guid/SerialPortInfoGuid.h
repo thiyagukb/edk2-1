@@ -18,7 +18,7 @@ extern EFI_GUID gUefiSerialPortInfoGuid;
 typedef struct {
   UINT16        Reversion;
   BOOLEAN       UseMmio;
-  UINT8         RegisterWidth;
+  UINT8         RegisterStride;
   UINT32        BaudRate;
   UINT64        RegisterBase;
 } SERIAL_PORT_INFO;
