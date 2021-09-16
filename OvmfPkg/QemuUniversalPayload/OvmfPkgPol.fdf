@@ -159,6 +159,7 @@ INF  OvmfPkg/PlatformPei/PlatformPei.inf
 !if $(UNIVERSAL_PAYLOAD) == TRUE
 INF  OvmfPkg/QemuUniversalPayload/UniversalPayloadInitializationPei/UniversalPayloadInitializationPei.inf
 !endif
+INF  OvmfPkg/QemuUniversalPayload/AcpiPeim/OvmfAcpiPeim.inf
 INF  MdeModulePkg/Core/DxeIplPeim/DxeIpl.inf
 INF  UefiPayloadPkg/PayloadLoaderPeim/PayloadLoaderPeim.inf
 INF  UefiCpuPkg/Universal/Acpi/S3Resume2Pei/S3Resume2Pei.inf
