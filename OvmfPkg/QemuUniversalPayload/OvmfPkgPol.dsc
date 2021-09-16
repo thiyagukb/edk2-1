@@ -721,6 +721,7 @@ gEfiMdePkgTokenSpaceGuid.PcdConfidentialComputingGuestAttr|0
       NULL|OvmfPkg/QemuUniversalPayload/QemuPayloadPcdListLibNull/QemuPayloadPcdListLibNull.inf
   }
 !endif
+  OvmfPkg/QemuUniversalPayload/AcpiPeim/OvmfAcpiPeim.inf 
   OvmfPkg/PlatformPei/PlatformPei.inf
   UefiCpuPkg/Universal/Acpi/S3Resume2Pei/S3Resume2Pei.inf {
     <LibraryClasses>
