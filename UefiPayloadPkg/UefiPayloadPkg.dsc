@@ -432,7 +432,10 @@
 !else
   [Components.X64]
   !if $(UNIVERSAL_PAYLOAD) == TRUE
-    UefiPayloadPkg/UefiPayloadEntry/UniversalPayloadEntry.inf
+    UefiPayloadPkg/UefiPayloadEntry/UniversalPayloadEntry.inf{
+    <LibraryClasses>
+      NULL|UefiPayloadPkg/Library/TinyCborLib/TinyCborLib.inf
+  }
   !else
     UefiPayloadPkg/UefiPayloadEntry/UefiPayloadEntry.inf
   !endif

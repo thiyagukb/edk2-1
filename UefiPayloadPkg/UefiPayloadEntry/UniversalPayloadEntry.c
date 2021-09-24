@@ -360,7 +360,12 @@ BuildHobs (
   FvHob->Length = (*DxeFv)->FvLength;
   return EFI_SUCCESS;
 }
-
+RETURN_STATUS
+EFIAPI
+SetCbor (
+  OUT VOID                **Buffer,
+  OUT UINTN               *Size
+  );
 /**
   Entry point to the C language phase of UEFI payload.
 
@@ -385,6 +390,9 @@ _ModuleEntryPoint (
   DEBUG ((DEBUG_INFO, "Entering Universal Payload...\n"));
   DEBUG ((DEBUG_INFO, "sizeof(UINTN) = 0x%x\n", sizeof(UINTN)));
 
+
+ 
+SetCbor (NULL, NULL  );
   DEBUG_CODE (
     //
     // Dump the Hobs from boot loader
