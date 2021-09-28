@@ -362,9 +362,9 @@ BuildHobs (
 }
 RETURN_STATUS
 EFIAPI
-SetCbor (
-  OUT VOID                **Buffer,
-  OUT UINTN               *Size
+GetCbor (
+  OUT VOID                *Buffer,
+  OUT UINTN               Size
   );
 /**
   Entry point to the C language phase of UEFI payload.
@@ -391,8 +391,13 @@ _ModuleEntryPoint (
   DEBUG ((DEBUG_INFO, "sizeof(UINTN) = 0x%x\n", sizeof(UINTN)));
 
 
- 
-SetCbor (NULL, NULL  );
+  UINT8                         *GuidHob;
+  GuidHob = GetFirstGuidHob (&gProtoBufferGuid);
+  if (GuidHob == NULL) {
+    return EFI_NOT_FOUND;
+  }
+  GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
+
   DEBUG_CODE (
     //
     // Dump the Hobs from boot loader

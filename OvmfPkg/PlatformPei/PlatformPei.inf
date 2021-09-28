@@ -46,6 +46,7 @@
   NetworkPkg/NetworkPkg.dec
 
 [Guids]
+  gProtoBufferGuid
   gEfiMemoryTypeInformationGuid
   gEfiXenInfoGuid
   gUniversalPayloadSerialPortInfoGuid

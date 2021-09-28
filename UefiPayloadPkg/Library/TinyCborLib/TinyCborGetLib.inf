@@ -9,17 +9,17 @@
 
 [Defines]
   INF_VERSION                    = 0x00010005
-  BASE_NAME                      = TinyCborLib
+  BASE_NAME                      = TinyCborGetLib
   FILE_GUID                      = 1A914F8E-2610-4F08-85A7-35159A4F6F64
   MODULE_TYPE                    = BASE
   VERSION_STRING                 = 1.0
-  LIBRARY_CLASS                  = TinyCborLib
+  LIBRARY_CLASS                  = TinyCborGetLib
 
 
 [Sources]
   tinycbor/src/cborencoder.c
   tinycbor/src/cborparser.c
-  TinyCborLib.c
+  TinyCborGetLib.c
 
 [LibraryClasses]
   PcdLib

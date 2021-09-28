@@ -290,7 +290,12 @@ PciHostBridgeGetRootBridges1 (
     );
 }
 
-
+RETURN_STATUS
+EFIAPI
+SetCbor (
+  OUT VOID                **Buffer,
+  OUT UINTN               *Size
+  );
 
 /**
   Publish the FV that includes the UPL.
@@ -340,6 +345,14 @@ UplInitialization (
   Serial->Header.Revision = UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO_REVISION;
   Serial->Header.Length = sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO);
   Serial->UseMmio = PcdGetBool (PcdSerialUseMmio);
+
+
+  VOID   *Data;
+  VOID   *Buffer;
+  UINTN  Size;
+  SetCbor (&Buffer, &Size);
+  Data = BuildGuidHob (&gProtoBufferGuid, Size);
+  CopyMem(Data, Buffer, Size);
 
   UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE * RootBridge;
   UINTN         RootBridgeCount;
