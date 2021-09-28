@@ -384,6 +384,12 @@ _ModuleEntryPoint (
 
   mHobList = (VOID *) BootloaderParameter;
   DxeFv    = NULL;
+  UINT8                         *GuidHob;
+  GuidHob = GetFirstGuidHob (&gProtoBufferGuid);
+  if (GuidHob == NULL) {
+    return EFI_NOT_FOUND;
+  }
+  GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
   // Call constructor for all libraries
   ProcessLibraryConstructorList ();
 
@@ -391,11 +397,6 @@ _ModuleEntryPoint (
   DEBUG ((DEBUG_INFO, "sizeof(UINTN) = 0x%x\n", sizeof(UINTN)));
 
 
-  UINT8                         *GuidHob;
-  GuidHob = GetFirstGuidHob (&gProtoBufferGuid);
-  if (GuidHob == NULL) {
-    return EFI_NOT_FOUND;
-  }
   GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
 
   DEBUG_CODE (

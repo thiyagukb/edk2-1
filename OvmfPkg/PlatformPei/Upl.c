@@ -20,6 +20,7 @@
 #include <OvmfPlatforms.h>
 #include <Library/BaseMemoryLib.h>
 
+#define CBOR_POC
 STATIC UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_APERTURE mNonExistAperture = { MAX_UINT64, 0 };
 
 EFI_STATUS
@@ -308,7 +309,9 @@ UplInitialization (
   )
 {
   EFI_FIRMWARE_VOLUME_HEADER          *UplFv;
+#ifndef CBOR_POC
   UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO  *Serial;
+#endif
   UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES  *PciRootBridgeInfo;
   UINT16                              HostBridgeDevId;
   UINTN                               Pmba;
@@ -337,7 +340,7 @@ UplInitialization (
       ASSERT (FALSE);
   }
 
-
+#ifndef CBOR_POC
   Serial = BuildGuidHob (&gUniversalPayloadSerialPortInfoGuid, sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO));
   Serial->BaudRate = PcdGet32 (PcdSerialBaudRate);
   Serial->RegisterBase = PcdGet64 (PcdSerialRegisterBase);
@@ -345,7 +348,7 @@ UplInitialization (
   Serial->Header.Revision = UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO_REVISION;
   Serial->Header.Length = sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO);
   Serial->UseMmio = PcdGetBool (PcdSerialUseMmio);
-
+#endif
 
   VOID   *Data;
   VOID   *Buffer;
