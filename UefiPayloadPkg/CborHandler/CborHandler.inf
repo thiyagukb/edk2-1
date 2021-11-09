@@ -1,7 +1,7 @@
 ## @file
-#  Platform Hook Library instance for UART device.
+#  Produce LoadFile PPI for payload loading.
 #
-#  Copyright (c) 2015, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2021, Intel Corporation. All rights reserved.<BR>
 #
 #  SPDX-License-Identifier: BSD-2-Clause-Patent
 #
@@ -9,35 +9,45 @@
 
 [Defines]
   INF_VERSION                    = 0x00010005
-  BASE_NAME                      = TinyCborSetLib
-  FILE_GUID                      = 2E3C405C-41D3-4B43-951E-2EAAEE75763E
-  MODULE_TYPE                    = BASE
+  BASE_NAME                      = CborHandler
+  FILE_GUID                      = 0A917334-D33F-442F-8AB8-4B640E50AEB3
+  MODULE_TYPE                    = PEIM
   VERSION_STRING                 = 1.0
-  LIBRARY_CLASS                  = TinyCborSetLib
 
+  ENTRY_POINT                    = CborHandlerEntryPoint
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64
+#
 
 [Sources]
+
   tinycbor/src/cborencoder.c
   tinycbor/src/cborparser.c
-  TinyCborSetLib.c
+  CborHandler.c
 
-[LibraryClasses]
-  PcdLib
-
-[Pcd]
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialBaudRate
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterStride
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialUseMmio
-
-[Guids]
-  gUniversalPayloadSerialPortInfoGuid
-  gUefiPayloadPkgTokenSpaceGuid
 
 [Packages]
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
   UefiPayloadPkg/UefiPayloadPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  PeimEntryPoint
+  DebugLib
+  PeiServicesLib
+
+[Ppis]
+  gPeiCborHandlerPpiGuid                 ## PRODUCES
+
+[Guids]
+  gProtoBufferGuid         ## PRODUCES
+
+[Depex]
+  TRUE
 
 [BuildOptions]
  

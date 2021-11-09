@@ -708,7 +708,7 @@
     <LibraryClasses>
       PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
   }
-
+  UefiPayloadPkg/CborHandler/CborHandler.inf
   UefiPayloadPkg/PayloadLoaderPeim/PayloadLoaderPeim.inf
   MdeModulePkg/Core/DxeIplPeim/DxeIpl.inf {
     <LibraryClasses>

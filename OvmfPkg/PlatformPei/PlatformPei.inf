@@ -169,6 +169,7 @@
   gEfiPeiMasterBootModePpiGuid
   gEfiPeiMpServicesPpiGuid
   gEfiPeiReadOnlyVariable2PpiGuid
+  gPeiCborHandlerPpiGuid
 
 [Depex]
   TRUE

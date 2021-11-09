@@ -60,45 +60,45 @@ GetCbor (
   UINTN   size3;
   size3 = 30;
 
-  UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO  *Serial;
-  Serial = BuildGuidHob (&gUniversalPayloadSerialPortInfoGuid, sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO));
+  /*UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO  *Serial;
+  Serial = BuildGuidHob (&gUniversalPayloadSerialPortInfoGuid, sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO));*/
 
   cbor_value_map_find_value (&value,  "RawByte", &element);
   cbor_value_copy_byte_string (&element,  buf3, &size3, NULL);
   PrintHex1(buf3,size3);
 
-  cbor_value_map_find_value (&value, "MyGuid", &element);
+  cbor_value_map_find_value (&value, "MyKbtGuid", &element);
   size3 = 30;
   cbor_value_copy_byte_string(&element,  buf3, &size3, NULL);
-  DEBUG ((EFI_D_ERROR, "MyGuid: 0x%g \n", buf3 ));
+  DEBUG ((EFI_D_ERROR, "MyKbtGuid: 0x%g \n", buf3 ));
 
   cbor_value_map_find_value (&value, "SubCbor", &subMap);
 
   cbor_value_map_find_value (&subMap, "BaudRate", &element);
   cbor_value_get_uint64(&element, &result);
   DEBUG ((EFI_D_ERROR, "BaudRate: 0x%lx \n", result ));
-  Serial->BaudRate       = (UINT32)result;
+  //Serial->BaudRate       = (UINT32)result;
 
   cbor_value_map_find_value (&subMap, "RegisterBase", &element);
   cbor_value_get_uint64(&element, &result);
   DEBUG ((EFI_D_ERROR, "RegisterBase: 0x%lx \n", result ));
-  Serial->RegisterBase   = (UINT64)result;
+  //Serial->RegisterBase   = (UINT64)result;
 
   cbor_value_map_find_value (&subMap, "RegisterStride", &element);
   cbor_value_get_uint64(&element, &result);
   DEBUG ((EFI_D_ERROR, "RegisterStride: 0x%lx \n", result ));
-  Serial->RegisterStride = (UINT32)result;
+  //Serial->RegisterStride = (UINT32)result;
 
   cbor_value_map_find_value (&subMap, "UseMmio", &element);
   cbor_value_get_uint64(&element, &result);
   DEBUG ((EFI_D_ERROR, "UseMmio: 0x%lx \n", result ));
-  Serial->UseMmio        = (BOOLEAN)result;
+  //Serial->UseMmio        = (BOOLEAN)result;*/
 
 
   
-
+/*
   Serial->Header.Revision = UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO_REVISION;
-  Serial->Header.Length = sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO);
+  Serial->Header.Length = sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO);*/
 
 
 
