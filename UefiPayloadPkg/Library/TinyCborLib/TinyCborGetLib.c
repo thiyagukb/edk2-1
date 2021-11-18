@@ -9,6 +9,7 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/HobLib.h>
 #include <UniversalPayload/SerialPortInfo.h>
+#include <UniversalPayload/PciRootBridges.h>
 #define ROW_LIMITER 16
 
 
@@ -56,23 +57,21 @@ GetCbor (
 
   CborValue element, subMap;
 
-  UINT8   buf3[30];
+  UINT8   buf3[30],buf4[sizeof(UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE)];
   UINTN   size3;
   size3 = 30;
 
   UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO  *Serial;
+  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES  *PciRootBridgeInfo;
   Serial = BuildGuidHob (&gUniversalPayloadSerialPortInfoGuid, sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO));
 
-  cbor_value_map_find_value (&value,  "RawByte", &element);
-  cbor_value_copy_byte_string (&element,  buf3, &size3, NULL);
-  PrintHex1(buf3,size3);
 
-  cbor_value_map_find_value (&value, "MyGuid", &element);
+  cbor_value_map_find_value (&value, "SerialPortInfoGuid", &element);
   size3 = 30;
   cbor_value_copy_byte_string(&element,  buf3, &size3, NULL);
-  DEBUG ((EFI_D_ERROR, "MyGuid: 0x%g \n", buf3 ));
+  DEBUG ((EFI_D_ERROR, "SerialPortInfoGuid: 0x%g \n", buf3 ));
 
-  cbor_value_map_find_value (&value, "SubCbor", &subMap);
+  cbor_value_map_find_value (&value, "SerialPortInfoGuidSubMap", &subMap);
 
   cbor_value_map_find_value (&subMap, "BaudRate", &element);
   cbor_value_get_uint64(&element, &result);
@@ -93,15 +92,51 @@ GetCbor (
   cbor_value_get_uint64(&element, &result);
   DEBUG ((EFI_D_ERROR, "UseMmio: 0x%lx \n", result ));
   Serial->UseMmio        = (BOOLEAN)result;
-
-
   
 
   Serial->Header.Revision = UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO_REVISION;
   Serial->Header.Length = sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO);
 
-
-
+  PciRootBridgeInfo = BuildGuidHob (&gUniversalPayloadPciRootBridgeInfoGuid, sizeof (PciRootBridgeInfo) + sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
   
+  cbor_value_map_find_value (&value, "PciRootBridgeInfoGuid", &element);
+  cbor_value_copy_byte_string(&element,  buf3, &size3, NULL);
+  DEBUG ((EFI_D_ERROR, "PciRootBridgeInfoGuid: 0x%g \n", buf3 ));
+
+
+  size3 = sizeof(UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE);
+  cbor_value_map_find_value (&value, "RootBridgeInfo", &element);
+  cbor_value_copy_byte_string (&element,  (UINT8 *)buf4, &size3, NULL);
+  CopyMem(PciRootBridgeInfo->RootBridge, buf4, size3);
+  PrintHex1((UINT8 *)buf4,size3);
+
+  cbor_value_map_find_value (&value, "PciRootBridgeInfoGuidSubMap", &subMap);
+
+  cbor_value_map_find_value (&subMap, "RootBridgeCount", &element);
+  cbor_value_get_uint64(&element, &result);
+  PciRootBridgeInfo->Count = (UINT8)result;
+  DEBUG ((EFI_D_ERROR, "RootBridgeCount: 0x%x \n", result ));
+
+  cbor_value_map_find_value (&subMap, "HeaderLength", &element);
+  cbor_value_get_uint64(&element, &result);
+  PciRootBridgeInfo->Header.Length = result;
+  DEBUG ((EFI_D_ERROR, "HeaderLength: 0x%x \n", result ));
+
+  cbor_value_map_find_value (&subMap, "ResourceAssigned", &element);
+  cbor_value_get_uint64(&element, &result);
+  PciRootBridgeInfo->ResourceAssigned = result;
+  DEBUG ((EFI_D_ERROR, "ResourceAssigned: 0x%x \n", result ));
+
+  cbor_value_map_find_value (&subMap, "HeaderRevision", &element);
+  cbor_value_get_uint64(&element, &result);
+  PciRootBridgeInfo->Header.Revision =  result;
+  DEBUG ((EFI_D_ERROR, "HeaderRevision: 0x%x \n", result ));
+  
+
+
+  DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->Count: 0x%04x\n",  __FUNCTION__, PciRootBridgeInfo->Count));
+  DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%04x\n",  __FUNCTION__, PciRootBridgeInfo->ResourceAssigned));
+  DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%x\n",  __FUNCTION__, (UINTN)PciRootBridgeInfo->RootBridge[0].Bus.Limit));
+
   return 0;
 }

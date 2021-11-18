@@ -45,6 +45,7 @@
 
 [LibraryClasses]
   BaseMemoryLib
+  TinyCborParserLib
   DebugLib
   BaseLib
   SerialPortLib

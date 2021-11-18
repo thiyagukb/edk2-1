@@ -6,6 +6,9 @@
 **/
 
 #include "UefiPayloadEntry.h"
+#include <Include/CborParser.h>
+#include <UniversalPayload/PciRootBridges.h>
+#include <UniversalPayload/SerialPortInfo.h>
 
 #define MEMORY_ATTRIBUTE_MASK         (EFI_RESOURCE_ATTRIBUTE_PRESENT             | \
                                        EFI_RESOURCE_ATTRIBUTE_INITIALIZED         | \
@@ -381,10 +384,13 @@ _ModuleEntryPoint (
   PHYSICAL_ADDRESS              DxeCoreEntryPoint;
   EFI_PEI_HOB_POINTERS          Hob;
   EFI_FIRMWARE_VOLUME_HEADER    *DxeFv;
-
+  EFI_GUID EfiGuid;
   mHobList = (VOID *) BootloaderParameter;
   DxeFv    = NULL;
+  VOID *Rootmap,*Submap;
   UINT8                         *GuidHob;
+  UINT64 baudrate;
+  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE RootbridgeInfo;
   GuidHob = GetFirstGuidHob (&gProtoBufferGuid);
   if (GuidHob == NULL) {
     return EFI_NOT_FOUND;
@@ -398,6 +404,55 @@ _ModuleEntryPoint (
 
 
   GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
+
+  Rootmap = Cbor_Parser_Init(GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
+  Cbor_Get_Byte_by_String(Rootmap,"SerialPortInfoGuid",sizeof(EfiGuid),(UINT8*)&EfiGuid);
+
+
+  if(!CompareGuid(&EfiGuid,&gUniversalPayloadSerialPortInfoGuid)) {
+    ASSERT_EFI_ERROR (FALSE);
+  }
+
+  DEBUG ((DEBUG_INFO, "KBT Guid: %g\n",EfiGuid));  
+  Submap = Cbor_Get_Submap_by_String(Rootmap,"SerialPortInfoGuidSubMap");
+
+  baudrate = Cbor_Get_Uint64_by_String(Submap,"BaudRate");
+  DEBUG ((DEBUG_INFO, "KBT baudrate: %llx\n",baudrate)); 
+
+  baudrate = Cbor_Get_Uint64_by_String(Submap,"RegisterBase");
+  DEBUG ((DEBUG_INFO, "KBT RegisterBase: %llx\n",baudrate)); 
+
+  baudrate = Cbor_Get_Uint64_by_String(Submap,"RegisterStride");
+  DEBUG ((DEBUG_INFO, "KBT RegisterStride: %llx\n",baudrate)); 
+
+  baudrate = Cbor_Get_Uint64_by_String(Submap,"UseMmio");
+  DEBUG ((DEBUG_INFO, "KBT UseMmio: %llx\n",baudrate)); 
+
+  Cbor_Get_Byte_by_String(Rootmap,"PciRootBridgeInfoGuid",sizeof(EfiGuid),(UINT8*)&EfiGuid);
+  DEBUG ((DEBUG_INFO, "KBT Guid: %g\n",EfiGuid)); 
+
+  if(!CompareGuid(&EfiGuid,&gUniversalPayloadPciRootBridgeInfoGuid)) {
+    ASSERT_EFI_ERROR (FALSE);
+  }
+
+  Cbor_Get_Byte_by_String(Rootmap,"RootBridgeInfo",sizeof(UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE),(UINT8*)&RootbridgeInfo);
+   DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%x\n",  __FUNCTION__, (UINTN)RootbridgeInfo.Bus.Limit));
+
+
+  Submap = Cbor_Get_Submap_by_String(Rootmap,"PciRootBridgeInfoGuidSubMap");
+
+  baudrate = Cbor_Get_Uint64_by_String(Submap,"RootBridgeCount");
+  DEBUG ((DEBUG_INFO, "KBT RootBridgeCount: %llx\n",baudrate)); 
+
+  baudrate = Cbor_Get_Uint64_by_String(Submap,"HeaderLength");
+  DEBUG ((DEBUG_INFO, "KBT HeaderLength: %llx\n",baudrate)); 
+
+  baudrate = Cbor_Get_Uint64_by_String(Submap,"ResourceAssigned");
+  DEBUG ((DEBUG_INFO, "KBT ResourceAssigned: %llx\n",baudrate)); 
+
+  baudrate = Cbor_Get_Uint64_by_String(Submap,"HeaderRevision");
+  DEBUG ((DEBUG_INFO, "KBT HeaderRevision: %llx\n",baudrate)); 
+
 
   DEBUG_CODE (
     //
