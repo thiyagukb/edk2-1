@@ -708,7 +708,10 @@
     <LibraryClasses>
       PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
   }
-
+  UefiPayloadPkg/Library/TinyCborLib/CborHandler.inf {
+    <LibraryClasses>
+      TinyCborLib|UefiPayloadPkg/Library/TinyCborLib/TinyCborLib.inf
+  }
   UefiPayloadPkg/PayloadLoaderPeim/PayloadLoaderPeim.inf
   MdeModulePkg/Core/DxeIplPeim/DxeIpl.inf {
     <LibraryClasses>
@@ -716,10 +719,7 @@
   }
 
   OvmfPkg/QemuUniversalPayload/AcpiPeim/OvmfAcpiPeim.inf 
-  OvmfPkg/PlatformPei/PlatformPei.inf {
-    <LibraryClasses>
-      NULL|UefiPayloadPkg/Library/TinyCborLib/TinyCborSetLib.inf
-  }
+  OvmfPkg/PlatformPei/PlatformPei.inf
   UefiCpuPkg/Universal/Acpi/S3Resume2Pei/S3Resume2Pei.inf {
     <LibraryClasses>
 !if $(SMM_REQUIRE) == TRUE

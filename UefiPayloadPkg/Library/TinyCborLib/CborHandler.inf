@@ -1,0 +1,57 @@
+## @file
+#  Produce LoadFile PPI for payload loading.
+#
+#  Copyright (c) 2021, Intel Corporation. All rights reserved.<BR>
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = CborHandler
+  FILE_GUID                      = 0A917334-D33F-442F-8AB8-4B640E50AEB3
+  MODULE_TYPE                    = PEIM
+  VERSION_STRING                 = 1.0
+
+  ENTRY_POINT                    = CborHandlerEntryPoint
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64
+#
+
+[Sources]
+
+  CborHandler.c
+
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  UefiPayloadPkg/UefiPayloadPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  TinyCborLib
+  PeimEntryPoint
+  DebugLib
+  PeiServicesLib
+
+[Ppis]
+  gPeiCborHandlerPpiGuid                 ## PRODUCES
+
+[Guids]
+  gProtoBufferGuid         ## PRODUCES
+
+[Depex]
+  TRUE
+
+[BuildOptions]
+ 
+  GCC:*_CLANGPDB_*_CC_FLAGS = -Wno-implicit-function-declaration -Wno-unused-command-line-argument -include Proto.h -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -D CBOR_NO_FLOATING_POINT
+
+  GCC:*_CLANGDWARF_*_CC_FLAGS = -Wno-implicit-function-declaration -Wno-unused-command-line-argument -include Proto.h -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -D CBOR_NO_FLOATING_POINT 
+
+  MSFT:*_*_*_CC_FLAGS = /wd4244 /FIProto.h /IC:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src /IC:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src
