@@ -9,28 +9,21 @@
 
 [Defines]
   INF_VERSION                    = 0x00010005
-  BASE_NAME                      = TinyCborGetLib
-  FILE_GUID                      = 1A914F8E-2610-4F08-85A7-35159A4F6F64
+  BASE_NAME                      = TinyCborLib
+  FILE_GUID                      = 38753E26-D534-4E6A-9225-C1B13287FC7D
   MODULE_TYPE                    = BASE
   VERSION_STRING                 = 1.0
-  LIBRARY_CLASS                  = TinyCborGetLib
+  LIBRARY_CLASS                  = TinyCborLib
 
 
 [Sources]
-  TinyCborGetLib.c
+  tinycbor/src/cbor.h
+  tinycbor/src/cborencoder.c
+  tinycbor/src/cborparser.c
 
 [LibraryClasses]
-  TinyCborLib
-  PcdLib
+  BaseLib
 
-[Pcd]
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialBaudRate
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterStride
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialUseMmio
-
-[Guids]
-  gUniversalPayloadSerialPortInfoGuid
 [Packages]
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
@@ -43,3 +36,4 @@
   GCC:*_CLANGDWARF_*_CC_FLAGS = -Wno-implicit-function-declaration -Wno-unused-command-line-argument -include Proto.h -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -D CBOR_NO_FLOATING_POINT 
 
   MSFT:*_*_*_CC_FLAGS = /wd4244 /FIProto.h /IC:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src /IC:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src
+  

@@ -161,7 +161,7 @@
   CacheMaintenanceLib|MdePkg/Library/BaseCacheMaintenanceLib/BaseCacheMaintenanceLib.inf
   SafeIntLib|MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf
   DxeHobListLib|UefiPayloadPkg/Library/DxeHobListLib/DxeHobListLib.inf
-
+  TinyCborLib|UefiPayloadPkg/Library/TinyCborLib/TinyCborLib.inf
 !if $(UNIVERSAL_PAYLOAD) == TRUE
   HobLib|UefiPayloadPkg/Library/DxeHobLib/DxeHobLib.inf
 !else

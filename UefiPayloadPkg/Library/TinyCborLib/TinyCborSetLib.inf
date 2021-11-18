@@ -17,11 +17,10 @@
 
 
 [Sources]
-  tinycbor/src/cborencoder.c
-  tinycbor/src/cborparser.c
   TinyCborSetLib.c
 
 [LibraryClasses]
+  TinyCborLib
   PcdLib
 
 [Pcd]
@@ -41,8 +40,8 @@
 
 [BuildOptions]
  
-  GCC:*_CLANGPDB_*_CC_FLAGS = -Wno-implicit-function-declaration -Wno-unused-command-line-argument -include Proto.h -I C:\code\Payload\edk2_tinycbor\edk2-for_upstream_test\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -I C:\code\Payload\edk2_tinycbor\edk2-for_upstream_test\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -D CBOR_NO_FLOATING_POINT
+  GCC:*_CLANGPDB_*_CC_FLAGS = -Wno-implicit-function-declaration -Wno-unused-command-line-argument -include Proto.h -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -D CBOR_NO_FLOATING_POINT
 
-  GCC:*_CLANGDWARF_*_CC_FLAGS = -Wno-implicit-function-declaration -Wno-unused-command-line-argument -include Proto.h -I C:\code\Payload\edk2_tinycbor\edk2-for_upstream_test\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -I C:\code\Payload\edk2_tinycbor\edk2-for_upstream_test\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -D CBOR_NO_FLOATING_POINT 
+  GCC:*_CLANGDWARF_*_CC_FLAGS = -Wno-implicit-function-declaration -Wno-unused-command-line-argument -include Proto.h -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -D CBOR_NO_FLOATING_POINT 
 
-  MSFT:*_*_*_CC_FLAGS = /wd4244 /FIProto.h /IC:\code\Payload\edk2_tinycbor\edk2-for_upstream_test\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src /IC:\code\Payload\edk2_tinycbor\edk2-for_upstream_test\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src
+  MSFT:*_*_*_CC_FLAGS = /wd4244 /FIProto.h /IC:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src /IC:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src
