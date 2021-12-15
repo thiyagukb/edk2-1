@@ -10,6 +10,21 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 #include "DxeIpl.h"
 
+#include <Include/UniversalPayload/AcpiTable.h>
+#include <Include/UniversalPayload/SerialPortInfo.h>
+#include <Include/UniversalPayload/SmbiosTable.h>
+#include <Include/UniversalPayload/ExtraData.h>
+#include <Include/UniversalPayload/PciRootBridges.h>
+#include <Include/Guid/BootManagerMenu.h>
+#include <Include/Guid/AcpiBoardInfoGuid.h>
+#include <Guid/MemoryTypeInformation.h>
+#include <Ppi/SecPlatformInformation.h>
+#include <Guid/MicrocodePatchHob.h>
+#include <Guid/LzmaDecompress.h>
+#include <Guid/StatusCodeCallbackGuid.h>
+#include <Guid/MemoryStatusCodeRecord.h>
+#include <Guid/PcdDataBaseHobGuid.h>
+
 //
 // Module Globals used in the DXE to PEI hand off
 // These must be module globals, so the stack can be switched
@@ -250,23 +265,24 @@ DxeLoadCore (
   IN EFI_PEI_HOB_POINTERS   HobList
   )
 {
-  EFI_STATUS                       Status;
-  EFI_FV_FILE_INFO                 DxeCoreFileInfo;
-  EFI_PHYSICAL_ADDRESS             DxeCoreAddress;
-  UINT64                           DxeCoreSize;
-  EFI_PHYSICAL_ADDRESS             DxeCoreEntryPoint;
-  EFI_BOOT_MODE                    BootMode;
-  EFI_PEI_FILE_HANDLE              FileHandle;
-  EFI_PEI_READ_ONLY_VARIABLE2_PPI  *Variable;
-  EFI_PEI_LOAD_FILE_PPI            *LoadFile;
-  UINTN                            Instance;
-  UINT32                           AuthenticationState;
-  UINTN                            DataSize;
-  EFI_PEI_S3_RESUME2_PPI           *S3Resume;
-  EFI_PEI_RECOVERY_MODULE_PPI      *PeiRecovery;
-  EDKII_PEI_CAPSULE_ON_DISK_PPI    *PeiCapsuleOnDisk;
-  EFI_MEMORY_TYPE_INFORMATION      MemoryData[EfiMaxMemoryType + 1];
-  VOID                             *CapsuleOnDiskModePpi;
+  EFI_STATUS                                Status;
+  EFI_FV_FILE_INFO                          DxeCoreFileInfo;
+  EFI_PHYSICAL_ADDRESS                      DxeCoreAddress;
+  UINT64                                    DxeCoreSize;
+  EFI_PHYSICAL_ADDRESS                      DxeCoreEntryPoint;
+  EFI_BOOT_MODE                             BootMode;
+  EFI_PEI_FILE_HANDLE                       FileHandle;
+  EFI_PEI_READ_ONLY_VARIABLE2_PPI           *Variable;
+  EFI_PEI_LOAD_FILE_PPI                     *LoadFile;
+  UINTN                                     Instance;
+  UINT32                                    AuthenticationState;
+  UINTN                                     DataSize;
+  EFI_PEI_S3_RESUME2_PPI                    *S3Resume;
+  EFI_PEI_RECOVERY_MODULE_PPI               *PeiRecovery;
+  EDKII_PEI_CAPSULE_ON_DISK_PPI             *PeiCapsuleOnDisk;
+  EFI_MEMORY_TYPE_INFORMATION               MemoryData[EfiMaxMemoryType + 1];
+  VOID                                      *CapsuleOnDiskModePpi;
+  EFI_PEI_HOB_POINTERS                      Hob;
 
   //
   // if in S3 Resume, restore configure
@@ -442,6 +458,24 @@ DxeLoadCore (
   REPORT_STATUS_CODE (EFI_PROGRESS_CODE, (EFI_SOFTWARE_PEI_CORE | EFI_SW_PEI_CORE_PC_HANDOFF_TO_NEXT));
 
   DEBUG ((DEBUG_INFO | DEBUG_LOAD, "Loading DXE CORE at 0x%11p EntryPoint=0x%11p\n", (VOID *)(UINTN)DxeCoreAddress, FUNCTION_ENTRY_POINT (DxeCoreEntryPoint)));
+
+  Hob.Raw = (VOID *)GetHobList ();
+  while (!END_OF_HOB_LIST (Hob)) {
+    Hob.Raw = GET_NEXT_HOB (Hob);
+    if (Hob.Header->HobType == EFI_HOB_TYPE_HANDOFF || Hob.Header->HobType == EFI_HOB_TYPE_END_OF_HOB_LIST || Hob.Header->HobType ==  EFI_HOB_TYPE_CPU ||
+        Hob.Header->HobType == EFI_HOB_TYPE_RESOURCE_DESCRIPTOR || Hob.Header->HobType == EFI_HOB_TYPE_MEMORY_ALLOCATION) {
+      continue;
+    }
+    if (Hob.Header->HobType == EFI_HOB_TYPE_GUID_EXTENSION) {
+      if (CompareGuid (&Hob.Guid->Name, &gUniversalPayloadAcpiTableGuid) || CompareGuid (&Hob.Guid->Name, &gUniversalPayloadSerialPortInfoGuid) ||
+          CompareGuid (&Hob.Guid->Name, &gUniversalPayloadSmbios3TableGuid) || CompareGuid (&Hob.Guid->Name, &gUniversalPayloadSmbiosTableGuid) ||
+          CompareGuid (&Hob.Guid->Name, &gUefiAcpiBoardInfoGuid) || CompareGuid (&Hob.Guid->Name, &gUniversalPayloadPciRootBridgeInfoGuid) ||
+          CompareGuid (&Hob.Guid->Name, &gUniversalPayloadExtraDataGuid) || CompareGuid (&Hob.Guid->Name, &gPcdDataBaseHobGuid)) {
+        continue;
+      }
+    }
+    Hob.Header->HobType = EFI_HOB_TYPE_UNUSED;
+  }
 
   //
   // Transfer control to the DXE Core
