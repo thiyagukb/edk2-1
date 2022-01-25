@@ -20,6 +20,7 @@
 #include <OvmfPlatforms.h>
 #include <Library/BaseMemoryLib.h>
 #include <CborHandler.h>
+#include <Library/CborWrapperLib.h>
 
 #define CBOR_POC
 STATIC UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_APERTURE mNonExistAperture = { MAX_UINT64, 0 };
@@ -312,13 +313,14 @@ UplInitialization (
   EFI_FIRMWARE_VOLUME_HEADER          *UplFv;
 #ifndef CBOR_POC
   UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO  *Serial;
+  #endif
   UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES  *PciRootBridgeInfo;
-#endif
+
   UINT16                              HostBridgeDevId;
   UINTN                               Pmba;
   PEI_CBOR_HANDLER_PPI                *cbor_handler;
   EFI_STATUS                          Status;
-  VOID                                *Key,*SubKey;
+  //VOID                                *Key,*SubKey;
 
   DEBUG ((DEBUG_INFO, "=====================Report UPL FV=======================================\n"));
   UplFv = (EFI_FIRMWARE_VOLUME_HEADER *) PcdGet32 (PcdOvmfPldFvBase);
@@ -357,7 +359,7 @@ UplInitialization (
   Serial->Header.Revision = UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO_REVISION;
   Serial->Header.Length = sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO);
   Serial->UseMmio = PcdGetBool (PcdSerialUseMmio);
-
+#endif
   PciRootBridgeInfo = BuildGuidHob (&gUniversalPayloadPciRootBridgeInfoGuid, sizeof (PciRootBridgeInfo) + sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
   CopyMem(PciRootBridgeInfo->RootBridge, RootBridge, sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
   PciRootBridgeInfo->Count = (UINT8)RootBridgeCount;
@@ -367,7 +369,7 @@ UplInitialization (
   PciRootBridgeInfo->ResourceAssigned = FALSE;
   DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%04x\n",  __FUNCTION__, PciRootBridgeInfo->ResourceAssigned));
   DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%x\n",  __FUNCTION__, (UINTN)PciRootBridgeInfo->RootBridge[0].Bus.Limit));
-#endif
+
 
   Status = PeiServicesLocatePpi (
               &gPeiCborHandlerPpiGuid,
@@ -375,44 +377,21 @@ UplInitialization (
               NULL,
               (VOID **)&cbor_handler
               );
-
-  Key = cbor_handler->CreateMap(NULL,5,TRUE);
-  cbor_handler->Set_Text_Strings(Key,"SerialPortInfoGuid");
-  cbor_handler->Set_Byte_Strings(Key,(CONST UINT8 *)&gUniversalPayloadSerialPortInfoGuid, 16);
-  cbor_handler->Set_Text_Strings(Key, "SerialPortInfoGuidSubMap");
-  SubKey = cbor_handler->CreateMap(Key,4,FALSE);
-  cbor_handler->Set_Text_Strings(SubKey,"BaudRate");
-  cbor_handler->Set_UINT(SubKey, PcdGet32 (PcdSerialBaudRate));
-  cbor_handler->Set_Text_Strings(SubKey, "RegisterBase");
-  cbor_handler->Set_UINT(SubKey, PcdGet64 (PcdSerialRegisterBase));
-  cbor_handler->Set_Text_Strings(SubKey,"RegisterStride");
-  cbor_handler->Set_UINT(SubKey, PcdGet32 (PcdSerialRegisterStride));
-  cbor_handler->Set_Text_Strings(SubKey,"UseMmio");
-  cbor_handler->Set_UINT(SubKey, PcdGetBool (PcdSerialUseMmio));
-  cbor_handler->EndSubMap(Key,SubKey);
-
-  cbor_handler->Set_Text_Strings(Key,"PciRootBridgeInfoGuid");
-  cbor_handler->Set_Byte_Strings(Key,(CONST UINT8 *)&gUniversalPayloadPciRootBridgeInfoGuid, 16);
-
-  cbor_handler->Set_Text_Strings(Key, "RootBridgeInfo");
-  cbor_handler->Set_Byte_Strings(Key, (const UINT8 *)RootBridge, 182);
-  DEBUG((DEBUG_ERROR,"KBT RootBridge: %d \n",sizeof(*RootBridge)));
-  DEBUG((DEBUG_ERROR,"KBT UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE: %d \n",sizeof(UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE)));
-
-  cbor_handler->Set_Text_Strings(Key, "PciRootBridgeInfoGuidSubMap");
-  SubKey = cbor_handler->CreateMap(Key,4,FALSE);
-
-  cbor_handler->Set_Text_Strings(SubKey,"RootBridgeCount");
-  cbor_handler->Set_UINT(SubKey, RootBridgeCount);
-  cbor_handler->Set_Text_Strings(SubKey, "HeaderLength");
-  cbor_handler->Set_UINT(SubKey,sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
-  cbor_handler->Set_Text_Strings(SubKey,"HeaderRevision");
-  cbor_handler->Set_UINT(SubKey, UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES_REVISION);
-  cbor_handler->Set_Text_Strings(SubKey,"ResourceAssigned");
-  cbor_handler->Set_UINT(SubKey, FALSE);
-
-  cbor_handler->EndSubMap(Key,SubKey);
-  cbor_handler->EndSubMap(Key,NULL);
+ DEBUG((DEBUG_ERROR,"KBT cbor_handler->gEncoder : %p \n",cbor_handler->gEncoder));
+Save_Text_Strings(cbor_handler->gEncoder,"SerialPortInfo.Mmio");
+SaveUint(cbor_handler->gEncoder,PcdGetBool (PcdSerialUseMmio));
+DEBUG ((EFI_D_ERROR, "KBT UPL SerialPortInfo.Mmio: 0x%d \n", PcdGetBool (PcdSerialUseMmio) ));
+Save_Text_Strings(cbor_handler->gEncoder,"SerialPortInfo.RegisterStride");
+SaveUint(cbor_handler->gEncoder,PcdGet32 (PcdSerialRegisterStride));
+DEBUG ((EFI_D_ERROR, "KBT UPL SerialPortInfo.RegisterStride: 0x%d \n", PcdGet32 (PcdSerialRegisterStride) ));
+Save_Text_Strings(cbor_handler->gEncoder,"SerialPortInfo.BaudRate");
+SaveUint(cbor_handler->gEncoder,PcdGet32 (PcdSerialBaudRate));
+DEBUG ((EFI_D_ERROR, "KBT UPL SerialPortInfo.BaudRate: 0x%d \n", PcdGet32 (PcdSerialBaudRate) ));
+Save_Text_Strings(cbor_handler->gEncoder,"SerialPortInfo.RegisterBase");
+SaveUint(cbor_handler->gEncoder,PcdGet64 (PcdSerialRegisterBase));
+DEBUG ((EFI_D_ERROR, "KBT UPL SerialPortInfo.RegisterBase: 0x%d \n",PcdGet64 (PcdSerialRegisterBase) ));
+DEBUG((DEBUG_ERROR,"KBT UplInitialization \n"));
+cbor_handler->Close_Map(cbor_handler->gEncoder,NULL);
 
 }
 

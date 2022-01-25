@@ -719,7 +719,11 @@
   }
 
   OvmfPkg/QemuUniversalPayload/AcpiPeim/OvmfAcpiPeim.inf 
-  OvmfPkg/PlatformPei/PlatformPei.inf
+  OvmfPkg/PlatformPei/PlatformPei.inf {
+    <LibraryClasses>
+      TinyCborLib|UefiPayloadPkg/Library/TinyCborLib/TinyCborLib.inf
+      CborWrapperLib|UefiPayloadPkg/Library/TinyCborLib/CborWrapperLib.inf
+  }
   UefiCpuPkg/Universal/Acpi/S3Resume2Pei/S3Resume2Pei.inf {
     <LibraryClasses>
 !if $(SMM_REQUIRE) == TRUE

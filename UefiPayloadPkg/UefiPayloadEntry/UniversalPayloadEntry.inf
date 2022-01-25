@@ -52,6 +52,7 @@
   HobLib
   PeCoffLib
   UefiCpuLib
+  TinyCborGetLib
 
 [Guids]
   gEfiMemoryTypeInformationGuid

@@ -434,7 +434,7 @@
   !if $(UNIVERSAL_PAYLOAD) == TRUE
     UefiPayloadPkg/UefiPayloadEntry/UniversalPayloadEntry.inf{
     <LibraryClasses>
-      NULL|UefiPayloadPkg/Library/TinyCborLib/TinyCborGetLib.inf
+      TinyCborGetLib|UefiPayloadPkg/Library/TinyCborLib/TinyCborGetLib.inf
   }
   !else
     UefiPayloadPkg/UefiPayloadEntry/UefiPayloadEntry.inf

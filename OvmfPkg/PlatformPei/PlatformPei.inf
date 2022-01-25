@@ -70,6 +70,8 @@
   MemEncryptSevLib
   PcdLib
   BaseMemoryLib
+  TinyCborLib
+  CborWrapperLib
 
 [Pcd]
   gUefiOvmfPkgTokenSpaceGuid.PcdOvmfPeiMemFvBase

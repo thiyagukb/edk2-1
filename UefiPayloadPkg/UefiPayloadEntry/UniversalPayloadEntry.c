@@ -385,17 +385,23 @@ _ModuleEntryPoint (
   mHobList = (VOID *) BootloaderParameter;
   DxeFv    = NULL;
   UINT8                         *GuidHob;
+  IoWrite8 (0x3F8, 54);
   GuidHob = GetFirstGuidHob (&gProtoBufferGuid);
+  IoWrite8 (0x3F8, 55);
   if (GuidHob == NULL) {
+    IoWrite8 (0x3F8, 54);
     return EFI_NOT_FOUND;
   }
-  GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
+  IoWrite8 (0x3F8, 56);
+  GetCbor (NULL, 0);
+  //GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
   // Call constructor for all libraries
+  IoWrite8 (0x3F8, 57);
   ProcessLibraryConstructorList ();
-
+  IoWrite8 (0x3F8, 58);
   DEBUG ((DEBUG_INFO, "Entering Universal Payload...\n"));
   DEBUG ((DEBUG_INFO, "sizeof(UINTN) = 0x%x\n", sizeof(UINTN)));
-
+  IoWrite8 (0x3F8, 59);
 
   GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
 

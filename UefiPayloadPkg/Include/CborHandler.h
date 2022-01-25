@@ -68,17 +68,31 @@ VOID *
 
 typedef
 VOID
-(*PEI_CBOR_CLOSE_CONT) (
+(*PEI_CBOR_CLOSE_ARRAY) (
   VOID *Parent,
-  VOID *Container
+  VOID *ArrayEncoder  
 );
 
 typedef
-VOID *
-(* PEI_CBOR_CREATE_MAP) (
-  VOID *Key,
-  IN UINTN   Length,
-  BOOLEAN IsRoot
+VOID*
+(*PEI_CBOR_INIT_ARRAY) (
+  VOID *Parent,
+  UINTN Length
+);
+
+typedef
+VOID
+(*PEI_CBOR_SUBMAP_INIT) (
+  VOID *Parent,
+  VOID *Submap,
+  UINTN Length  
+);
+
+typedef
+VOID
+(*PEI_CBOR_CLOSE_MAP) (
+  VOID *Parent,
+  VOID *Container
 );
 /*
 typedef
@@ -150,15 +164,17 @@ uint64_t
 /// will use this service to launch the known PEI module images.
 ///
 struct _PEI_CBOR_HANDLER_PPI {
-  PEI_CBOR_CREATE_MAP CreateMap;
   PEI_CBOR_SET_TEXT_STRING Set_Text_Strings;
   PEI_CBOR_SET_BYTE_STRING Set_Byte_Strings;
   PEI_CBOR_SET_UINT    Set_UINT;
   PEI_CBOR_SET_INT Set_INT;
   PEI_CBOR_SET_NEGATIVE_INT Set_Negative_INT;
   PEI_CBOR_SET_BOOLEAN Set_BOOLEAN;
-  PEI_CBOR_CLOSE_CONT EndSubMap;
-
+  PEI_CBOR_INIT_ARRAY Init_Array;
+  PEI_CBOR_CLOSE_ARRAY Close_Array;
+  PEI_CBOR_SUBMAP_INIT SubMap_Init;
+  PEI_CBOR_CLOSE_MAP Close_Map;
+  VOID *gEncoder;
 };
 
 extern EFI_GUID gPeiCborHandlerPpiGuid;

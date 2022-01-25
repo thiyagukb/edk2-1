@@ -9,12 +9,11 @@
 
 [Defines]
   INF_VERSION                    = 0x00010005
-  BASE_NAME                      = CborHandler
-  FILE_GUID                      = 0A917334-D33F-442F-8AB8-4B640E50AEB3
-  MODULE_TYPE                    = PEIM
+  BASE_NAME                      = CborWrapperLib
+  FILE_GUID                      = 6B74F597-D329-4FB6-B0CB-9BC168F7ABD3
+  MODULE_TYPE                    = BASE
   VERSION_STRING                 = 1.0
-
-  ENTRY_POINT                    = CborHandlerEntryPoint
+  LIBRARY_CLASS                  = CborWrapperLib
 
 #
 # The following information is for reference only and not required by the build tools.
@@ -24,7 +23,7 @@
 
 [Sources]
 
-  CborHandler.c
+  CborWrapperLib.c
 
 
 [Packages]
@@ -38,7 +37,6 @@
   PeimEntryPoint
   DebugLib
   PeiServicesLib
-  HobLib
 
 [Ppis]
   gPeiCborHandlerPpiGuid                 ## PRODUCES

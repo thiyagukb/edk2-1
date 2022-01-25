@@ -17,7 +17,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <CborHandler.h>
 
 CborEncoder gencoder;
-CborEncoder mapEncoder,submapEncoder;
+CborEncoder mapEncoder,arrayEncoder;
  UINT8   *buf;
 
 VOID
@@ -25,29 +25,17 @@ Cbor_Create_Outermost_Container (
     VOID
 )
 {
-  UINTN   size = 500;
+  UINTN   size = 115;
   buf = AllocatePool(size);
   
-  cbor_encoder_init(&gencoder, buf, 500, 0);
+  cbor_encoder_init(&gencoder, buf,115, 0);
+  cbor_encoder_create_map(&gencoder, &mapEncoder, 4);
+  DEBUG((DEBUG_ERROR,"KBT mapEncoder : %p \n",&mapEncoder));
+
+
   return;
 }
 
-VOID *
-Cbor_Encoder_Map_Init (
-  VOID *ParentEncoder,
-  IN UINTN   Length,
-  BOOLEAN IsRoot
-)
-{
-  if(IsRoot){
-  cbor_encoder_create_map(&gencoder, &mapEncoder, Length);
-  //return &mapEncoder;
-  }
-  else {
-    cbor_encoder_create_map(ParentEncoder, &mapEncoder, Length);
-  }
-  return &mapEncoder;
-}
 
 VOID *
 Cbor_Encoder_Set_Text_Strings (
@@ -55,7 +43,8 @@ Cbor_Encoder_Set_Text_Strings (
   const char * string
 )
 {
-  cbor_encode_text_stringz(MapEncoder, string);
+  DEBUG((DEBUG_ERROR,"KBT Cbor_Encoder_Set_Text_Strings MapEncoder : %p \n",MapEncoder));
+  cbor_encode_text_stringz((CborEncoder *)MapEncoder, string);
   return MapEncoder;
 }
 
@@ -66,7 +55,7 @@ Cbor_Encoder_Set_Byte_String (
   UINTN size
 )
 {
-  cbor_encode_byte_string(MapEncoder, (const uint8_t *)string, size);
+  cbor_encode_byte_string((CborEncoder *)MapEncoder, (const uint8_t *)string, size);
   return MapEncoder;
 }
 
@@ -76,7 +65,8 @@ Cbor_Encoder_Set_UINT (
   UINT64 Value
 )
 {
-  cbor_encode_uint(MapEncoder, Value);
+  DEBUG((DEBUG_ERROR,"KBT Cbor_Encoder_Set_UINT MapEncoder : %p \n",MapEncoder));
+  cbor_encode_uint((CborEncoder *)MapEncoder, Value);
   return MapEncoder;
 }
 
@@ -86,7 +76,7 @@ Cbor_Encoder_Set_INT (
   UINT64 Value
 )
 {
-  cbor_encode_int(MapEncoder, Value);
+  cbor_encode_int((CborEncoder *)MapEncoder, Value);
   return MapEncoder;
 }
 
@@ -96,7 +86,7 @@ Cbor_Encoder_Set_Negative_INT (
   UINT64 Absolute_Value
 )
 {
-  cbor_encode_negative_int(MapEncoder, Absolute_Value);
+  cbor_encode_negative_int((CborEncoder *)MapEncoder, Absolute_Value);
   return MapEncoder;
 }
 
@@ -106,21 +96,53 @@ Cbor_Encoder_Set_BOOLEAN (
   bool   Value
 )
 {
-  cbor_encode_boolean(MapEncoder, Value);
+  cbor_encode_boolean((CborEncoder *)MapEncoder, Value);
   return MapEncoder;
 }
 
+
+VOID *
+Init_Array (
+  VOID *Parent,
+  UINTN Length
+)
+{
+  cbor_encoder_create_array(Parent,&arrayEncoder,Length);
+  return (VOID*)&arrayEncoder;
+}
+
 VOID
-Cbor_Encoder_Submap_End (
+Close_Array (
+  VOID *Parent,
+  VOID *Container
+)
+{
+  cbor_encoder_close_container(Parent, Container);
+}
+
+VOID
+SubMap_Init (
+  VOID *Parent,
+  VOID *Submap,
+  UINTN Length
+)
+{
+  cbor_encoder_create_map(Parent, Submap,Length);
+}
+
+VOID
+End_Map (
   VOID *Parent,
   VOID *Container
 )
 {
   VOID   *Data;
   UINTN Size;
+
   if (Container == NULL){
-    cbor_encoder_close_container(&gencoder,Parent);
+    cbor_encoder_close_container(&gencoder,&mapEncoder);
       Size = cbor_encoder_get_buffer_size (&gencoder, (const uint8_t *)buf);
+      DEBUG((DEBUG_ERROR,"KBT Size:%d \n",Size));
     Data =(VOID *) BuildGuidHob (&gProtoBufferGuid, Size);
   CopyMem(Data, buf, Size);
   }
@@ -131,14 +153,17 @@ Cbor_Encoder_Submap_End (
 }
 
 PEI_CBOR_HANDLER_PPI   mPeiCborHandlerPpi = {
-  Cbor_Encoder_Map_Init,
   Cbor_Encoder_Set_Text_Strings,
   Cbor_Encoder_Set_Byte_String,
   Cbor_Encoder_Set_UINT,
   Cbor_Encoder_Set_INT,
   Cbor_Encoder_Set_Negative_INT,
   Cbor_Encoder_Set_BOOLEAN,
-  Cbor_Encoder_Submap_End
+  Init_Array,
+  Close_Array,
+  SubMap_Init,
+  End_Map,
+  (VOID *)&mapEncoder
 };
 
 EFI_PEI_PPI_DESCRIPTOR     gPpiCborHandlerPpiList = {
