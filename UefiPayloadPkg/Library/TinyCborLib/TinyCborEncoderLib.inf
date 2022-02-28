@@ -1,0 +1,45 @@
+## @file
+#  Platform Hook Library instance for UART device.
+#
+#  Copyright (c) 2015, Intel Corporation. All rights reserved.<BR>
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = TinyCborEncoderLib
+  FILE_GUID                      = 662E307F-F898-4B6F-8D89-01A3D963F1CE
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = TinyCborEncoderLib
+  CONSTRUCTOR                    = TinyCborEncoderLibConstructor
+
+
+[Sources]
+  TinyCborEncoderLib.c
+
+[LibraryClasses]
+  BaseLib
+  HobLib
+  DebugLib
+  TinyCborLib
+  IoLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  UefiPayloadPkg/UefiPayloadPkg.dec
+
+[Guids]
+  CborRootmapHobGuid
+
+[BuildOptions]
+ 
+  GCC:*_CLANGPDB_*_CC_FLAGS = -Wno-implicit-function-declaration -Wno-unused-command-line-argument -include Proto.h -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -D CBOR_NO_FLOATING_POINT
+
+  GCC:*_CLANGDWARF_*_CC_FLAGS = -Wno-implicit-function-declaration -Wno-unused-command-line-argument -include Proto.h -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -I C:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src -D CBOR_NO_FLOATING_POINT 
+
+  MSFT:*_*_*_CC_FLAGS = /wd4244 /FIProto.h /IC:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src /IC:\edk2rebase\Cbor\edk2-1\UefiPayloadPkg\Library\TinyCborLib\tinycbor\src
+  

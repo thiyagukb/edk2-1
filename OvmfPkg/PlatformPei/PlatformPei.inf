@@ -51,6 +51,7 @@
   gEfiXenInfoGuid
   gUniversalPayloadSerialPortInfoGuid
   gUniversalPayloadPciRootBridgeInfoGuid
+  CborRootmapHobGuid
 
 [LibraryClasses]
   BaseLib

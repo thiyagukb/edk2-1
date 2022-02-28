@@ -2,7 +2,7 @@
 
 #include "tinycbor\src\cbor.h"
 #include <PiPei.h>
-
+#include <Library/IoLib.h>
 #include <Base.h>
 #include <Library/DebugLib.h>
 #include "Proto.h"
@@ -52,56 +52,64 @@ GetCbor (
   CborParser parser;
   CborValue value;
   UINT64 result;
+  size_t length;
+  CborValue next;
+  CborValue  	Array;
+  IoWrite8(0x3f8,'Z');
   cbor_parser_init(Buffer, Size, 0, &parser, &value);
+  IoWrite8(0x3f8,'X');
+  CborValue  element,subMap;
 
-  CborValue element, subMap;
+  uint8_t   buf3[7];
+  size_t   size3;
+  size3 = 7;
 
-  UINT8   buf3[30];
-  UINTN   size3;
-  size3 = 30;
-
-  UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO  *Serial;
+UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO  *Serial;
   Serial = BuildGuidHob (&gUniversalPayloadSerialPortInfoGuid, sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO));
 
-  cbor_value_map_find_value (&value,  "RawByte", &element);
-  cbor_value_copy_byte_string (&element,  buf3, &size3, NULL);
-  PrintHex1(buf3,size3);
-
-  cbor_value_map_find_value (&value, "MyGuid", &element);
-  size3 = 30;
-  cbor_value_copy_byte_string(&element,  buf3, &size3, NULL);
-  DEBUG ((EFI_D_ERROR, "MyGuid: 0x%g \n", buf3 ));
-
-  cbor_value_map_find_value (&value, "SubCbor", &subMap);
-
-  cbor_value_map_find_value (&subMap, "BaudRate", &element);
+  cbor_value_map_find_value (&value, "SerialPortBaudRate", &element);
   cbor_value_get_uint64(&element, &result);
-  DEBUG ((EFI_D_ERROR, "BaudRate: 0x%lx \n", result ));
+  DEBUG ((EFI_D_ERROR, "SerialPortBaudRate: 0x%lx \n", result ));
   Serial->BaudRate       = (UINT32)result;
-
-  cbor_value_map_find_value (&subMap, "RegisterBase", &element);
+IoWrite8(0x3f8,'X');
+  cbor_value_map_find_value (&value, "SerialPortRegisterBase", &element);
   cbor_value_get_uint64(&element, &result);
-  DEBUG ((EFI_D_ERROR, "RegisterBase: 0x%lx \n", result ));
+  DEBUG ((EFI_D_ERROR, "SerialPortRegisterBase: 0x%lx \n", result ));
   Serial->RegisterBase   = (UINT64)result;
-
-  cbor_value_map_find_value (&subMap, "RegisterStride", &element);
+IoWrite8(0x3f8,'X');
+  cbor_value_map_find_value (&value, "SerialPortRegisterStride", &element);
   cbor_value_get_uint64(&element, &result);
-  DEBUG ((EFI_D_ERROR, "RegisterStride: 0x%lx \n", result ));
+  DEBUG ((EFI_D_ERROR, "SerialPortRegisterStride: 0x%lx \n", result ));
   Serial->RegisterStride = (UINT32)result;
-
-  cbor_value_map_find_value (&subMap, "UseMmio", &element);
-  cbor_value_get_uint64(&element, &result);
-  DEBUG ((EFI_D_ERROR, "UseMmio: 0x%lx \n", result ));
+IoWrite8(0x3f8,'X');
+  cbor_value_map_find_value (&value, "SerialPortUseMmio", &element);
+  cbor_value_get_boolean(&element, (bool *)&result);
+  DEBUG ((EFI_D_ERROR, "SerialPortUseMmio: 0x%lx \n", result ));
   Serial->UseMmio        = (BOOLEAN)result;
-
-
+IoWrite8(0x3f8,'X');
   
+  
+  cbor_value_map_find_value (&value, "UplExtradata", &element);
+  cbor_value_enter_container	(	&element, &Array);
+
+  cbor_value_map_find_value (&Array, "Identifier", &subMap);
+
+  cbor_value_calculate_string_length(&subMap, &length);
+  DEBUG ((EFI_D_ERROR, "lengtha: 0x%lx  subMap = 0x%lx  type: %x, remaining: %x\n", length , (UINT64) &subMap, subMap.type, subMap.remaining));
+  cbor_value_copy_text_string	(	&subMap, (char *) (UINT8 *) buf3, &length,  &next);
+  DEBUG ((EFI_D_ERROR, "Identifier string: %a\n", buf3));
+  
+  cbor_value_map_find_value (&Array, "Base", &subMap);
+  cbor_value_get_uint64(&subMap, &result);
+  DEBUG ((EFI_D_ERROR, "Base: 0x%lx \n", result ));
+
+  cbor_value_map_find_value (&Array, "Size", &subMap);
+  cbor_value_get_uint64(&subMap, &result);
+  DEBUG ((EFI_D_ERROR, "Size: 0x%lx \n", result ));
 
   Serial->Header.Revision = UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO_REVISION;
   Serial->Header.Length = sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO);
 
 
-
-  
   return 0;
 }

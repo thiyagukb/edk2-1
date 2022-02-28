@@ -19,6 +19,8 @@
 #include <Library/QemuFwCfgLib.h>
 #include <OvmfPlatforms.h>
 #include <Library/BaseMemoryLib.h>
+#include <Library/TinyCborEncoderLib.h>
+#include <Guid/CborRootmapHobGuid.h>
 
 #define CBOR_POC
 STATIC UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_APERTURE mNonExistAperture = { MAX_UINT64, 0 };
@@ -353,7 +355,30 @@ UplInitialization (
   VOID   *Data;
   VOID   *Buffer;
   UINTN  Size;
-  SetCbor (&Buffer, &Size);
+  UINT8 *Guidhob;
+  CBOR_ROOTMAP_INFO *Data1;
+  Guidhob = GetFirstGuidHob (&CborRootmapHobGuid);
+  Data1 = GET_GUID_HOB_DATA (Guidhob);
+  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  uplData;
+  char idnt[] = "upl_fv";
+  AsciiStrCpyS(uplData.Identifier,sizeof(idnt),idnt);
+  uplData.Base = 0x1234;
+  uplData.Size = 0x12;
+  //UINT32 buffer1[] = { 0x12345678, 0x0, 0x90ABCDEF};
+  //SetCbor (&Buffer, &Size);
+  DEBUG ((EFI_D_ERROR, "KBT Upl Root: %x Rootmap:%x \n",Data1->RootEncoder,Data1->RootMapEncoder ));
+  SetToCborBoolean("SerialPortUseMmio",PcdGetBool (PcdSerialUseMmio));
+  SetToCborUint64("SerialPortRegisterStride",PcdGet32 (PcdSerialRegisterStride));
+  SetToCborUint64("SerialPortBaudRate",PcdGet32 (PcdSerialBaudRate));
+  SetToCborUint64("SerialPortRegisterBase",PcdGet64 (PcdSerialRegisterBase));
+  //CloseCborRootMap();
+  CborEncoderCloseContainer(Data1->RootEncoder,Data1->RootMapEncoder);
+  SetToCborUplExtraData(&uplData,1);
+  CloseCborRootMap();
+  CborGetBuffer(&Buffer, &Size);
+  
+  
+
   Data = BuildGuidHob (&gProtoBufferGuid, Size);
   CopyMem(Data, Buffer, Size);
 

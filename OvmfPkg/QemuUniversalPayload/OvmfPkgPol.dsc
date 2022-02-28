@@ -719,6 +719,8 @@
   OvmfPkg/PlatformPei/PlatformPei.inf {
     <LibraryClasses>
       NULL|UefiPayloadPkg/Library/TinyCborLib/TinyCborSetLib.inf
+      TinyCborLib|UefiPayloadPkg/Library/TinyCborLib/TinyCborLib.inf
+      NULL|UefiPayloadPkg/Library/TinyCborLib/TinyCborEncoderLib.inf
   }
   UefiCpuPkg/Universal/Acpi/S3Resume2Pei/S3Resume2Pei.inf {
     <LibraryClasses>
