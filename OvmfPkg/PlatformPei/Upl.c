@@ -359,11 +359,15 @@ UplInitialization (
   CBOR_ROOTMAP_INFO *Data1;
   Guidhob = GetFirstGuidHob (&CborRootmapHobGuid);
   Data1 = GET_GUID_HOB_DATA (Guidhob);
-  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  uplData;
+  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  uplData[2];
   char idnt[] = "upl_fv";
-  AsciiStrCpyS(uplData.Identifier,sizeof(idnt),idnt);
-  uplData.Base = 0x1234;
-  uplData.Size = 0x12;
+  char idnt1[] = "upl_12";
+  AsciiStrCpyS(uplData[0].Identifier,sizeof(idnt),idnt);
+  uplData[0].Base = 0x1234;
+  uplData[0].Size = 0x12;
+  AsciiStrCpyS(uplData[1].Identifier,sizeof(idnt1),idnt1);
+  uplData[1].Base = 0xABCD;
+  uplData[1].Size = 0xAB;
   //UINT32 buffer1[] = { 0x12345678, 0x0, 0x90ABCDEF};
   //SetCbor (&Buffer, &Size);
   DEBUG ((EFI_D_ERROR, "KBT Upl Root: %x Rootmap:%x \n",Data1->RootEncoder,Data1->RootMapEncoder ));
@@ -373,7 +377,7 @@ UplInitialization (
   SetToCborUint64("SerialPortRegisterBase",PcdGet64 (PcdSerialRegisterBase));
   //CloseCborRootMap();
   CborEncoderCloseContainer(Data1->RootEncoder,Data1->RootMapEncoder);
-  SetToCborUplExtraData(&uplData,1);
+  SetToCborUplExtraData((UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA *)&uplData,2);
   CloseCborRootMap();
   CborGetBuffer(&Buffer, &Size);
   

@@ -435,6 +435,7 @@
     UefiPayloadPkg/UefiPayloadEntry/UniversalPayloadEntry.inf{
     <LibraryClasses>
       NULL|UefiPayloadPkg/Library/TinyCborLib/TinyCborGetLib.inf
+      NULL|UefiPayloadPkg/Library/TinyCborLib/TinyCborDecoder.inf
   }
   !else
     UefiPayloadPkg/UefiPayloadEntry/UefiPayloadEntry.inf
