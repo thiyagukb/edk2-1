@@ -6,6 +6,8 @@
 **/
 
 #include "UefiPayloadEntry.h"
+#include <Library/TinyCborDecoderLib.h>
+#include <UniversalPayload/SerialPortInfo.h>
 
 #define MEMORY_ATTRIBUTE_MASK         (EFI_RESOURCE_ATTRIBUTE_PRESENT             | \
                                        EFI_RESOURCE_ATTRIBUTE_INITIALIZED         | \
@@ -381,10 +383,14 @@ _ModuleEntryPoint (
   PHYSICAL_ADDRESS              DxeCoreEntryPoint;
   EFI_PEI_HOB_POINTERS          Hob;
   EFI_FIRMWARE_VOLUME_HEADER    *DxeFv;
+  UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO  *Serial;
 
   mHobList = (VOID *) BootloaderParameter;
   DxeFv    = NULL;
   UINT8                         *GuidHob;
+  VOID * CBorRootmap,*element;
+  UINT64 result;
+  BOOLEAN boolresult;
    IoWrite8(0x3f8,'A');
   GuidHob = GetFirstGuidHob (&gProtoBufferGuid);
   IoWrite8(0x3f8,'B');
@@ -394,8 +400,34 @@ _ModuleEntryPoint (
   }
   DEBUG ((DEBUG_INFO, "KBT In _ModuleEntryPoint.\n"));
   IoWrite8(0x3f8,'D');
-  GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
+ // GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
+  CBorRootmap = CborDecoderGetRootMap(GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
+  
+  Serial = BuildGuidHob (&gUniversalPayloadSerialPortInfoGuid, sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO));
+  element = CborDecoderFindValueInMap("SerialPortBaudRate",CBorRootmap);
+  CborDecoderGetUint64(element,&result);
+  DEBUG ((EFI_D_ERROR, "SerialPortBaudRate: 0x%lx \n", result ));
+  Serial->BaudRate       = (UINT32)result;
+
+  element = CborDecoderFindValueInMap("SerialPortRegisterBase",CBorRootmap);
+  CborDecoderGetUint64(element,&result);
+  DEBUG ((EFI_D_ERROR, "SerialPortRegisterBase: 0x%lx \n", result ));
+  Serial->RegisterBase       = (UINT32)result;
+
+  element = CborDecoderFindValueInMap("SerialPortRegisterStride",CBorRootmap);
+  CborDecoderGetUint64(element,&result);
+  DEBUG ((EFI_D_ERROR, "SerialPortRegisterStride: 0x%lx \n", result ));
+  Serial->RegisterStride       = (UINT32)result;
+
+  element = CborDecoderFindValueInMap("SerialPortUseMmio",CBorRootmap);
+  CborDecoderGetBoolean(element,&boolresult);
+  DEBUG ((EFI_D_ERROR, "SerialPortUseMmio: 0x%lx \n", boolresult ));
+  Serial->UseMmio       = (UINT32)boolresult;
+
+  Serial->Header.Revision = UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO_REVISION;
+  Serial->Header.Length = sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO);
   IoWrite8(0x3f8,'E');
+
   // Call constructor for all libraries
   ProcessLibraryConstructorList ();
 IoWrite8(0x3f8,'F');
@@ -403,8 +435,13 @@ IoWrite8(0x3f8,'F');
   DEBUG ((DEBUG_INFO, "sizeof(UINTN) = 0x%x\n", sizeof(UINTN)));
 
 
-  GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
+ // GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
 IoWrite8(0x3f8,'H');
+  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA Data;
+GetfromCborUplExtraData(&Data,CBorRootmap,1);
+DEBUG ((EFI_D_ERROR, "Data.Identifier: %a \n", Data.Identifier ));
+DEBUG ((EFI_D_ERROR, "Data.Base: %x\n", Data.Base ));
+DEBUG ((EFI_D_ERROR, "Data.Size: %x \n", Data.Size ));
   DEBUG_CODE (
     //
     // Dump the Hobs from boot loader
