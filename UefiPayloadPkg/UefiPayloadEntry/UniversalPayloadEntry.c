@@ -19,6 +19,13 @@ PrintHob (
   IN CONST VOID  *HobStart
   );
 
+RETURN_STATUS
+EFIAPI
+GetCbor (
+  OUT VOID                *Buffer,
+  OUT UINTN               Size
+  );
+
 /**
   Create new Hand-off Hob and parse Memory Map.
 
@@ -241,6 +248,7 @@ _ModuleEntryPoint (
   // Call constructor for all libraries
   ProcessLibraryConstructorList ();
 
+
   DEBUG ((DEBUG_INFO, "Entering Universal Payload...\n"));
   DEBUG ((DEBUG_INFO, "sizeof(UINTN) = 0x%x\n", sizeof (UINTN)));
 
@@ -261,6 +269,15 @@ _ModuleEntryPoint (
   FixUpPcdDatabase (DxeFv);
   Status = UniversalLoadDxeCore (DxeFv, &DxeCoreEntryPoint);
   ASSERT_EFI_ERROR (Status);
+
+  UINT8                         *GuidHob;
+  GuidHob = GetFirstGuidHob (&gCborBufferGuid);
+  if (GuidHob == NULL) {
+    IoWrite8(0x3f8,'A');
+    return EFI_NOT_FOUND;
+  }
+  GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
+
 
   //
   // Mask off all legacy 8259 interrupt sources

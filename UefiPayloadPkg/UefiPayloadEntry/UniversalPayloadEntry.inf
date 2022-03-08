@@ -72,6 +72,7 @@
   gUniversalPayloadSmbios3TableGuid
   gEdkiiBootManagerMenuFileGuid
   gUniversalPayloadMemoryMapGuid
+  gCborBufferGuid
 
 [FeaturePcd.IA32]
   gEfiMdeModulePkgTokenSpaceGuid.PcdDxeIplSwitchToLongMode      ## CONSUMES
