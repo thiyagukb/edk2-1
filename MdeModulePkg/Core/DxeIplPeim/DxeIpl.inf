@@ -113,6 +113,7 @@
   gLzmaCustomDecompressGuid
   gMemoryStatusCodeRecordGuid
   gPcdDataBaseHobGuid
+  gCborBufferGuid
 
 [FeaturePcd.IA32]
   gEfiMdeModulePkgTokenSpaceGuid.PcdDxeIplSwitchToLongMode      ## CONSUMES

@@ -711,12 +711,14 @@ gEfiMdePkgTokenSpaceGuid.PcdConfidentialComputingGuestAttr|0
   MdeModulePkg/Core/DxeIplPeim/DxeIpl.inf {
     <LibraryClasses>
       NULL|MdeModulePkg/Library/LzmaCustomDecompressLib/LzmaCustomDecompressLib.inf
+      NULL|UefiPayloadPkg/Library/CborLib/SetUplDataLib.inf
   }
 
 !if $(UNIVERSAL_PAYLOAD) == TRUE
   OvmfPkg/QemuUniversalPayload/UniversalPayloadInitializationPei/UniversalPayloadInitializationPei.inf {
     <LibraryClasses>
       NULL|OvmfPkg/QemuUniversalPayload/QemuPayloadPcdListLibNull/QemuPayloadPcdListLibNull.inf
+      NULL|UefiPayloadPkg/Library/CborLib/SetUplDataLib.inf
   }
 !endif
   OvmfPkg/PlatformPei/PlatformPei.inf
