@@ -308,20 +308,19 @@ SetToCborUplExtraData (
   CborEncoder  sub_map_key;
   CborEncoder Arrayencoder;
 
-  DEBUG ((EFI_D_ERROR, "KBT SetToCborUplExtraData \n" ));
   CborEncodeTextString(&RootMapEncoder, "UplExtradata");
   CborEncoderCreateArray(&Arrayencoder,Count);
   for (int i = 0;i<Count;i++) {
     CborEncoderCreateSubMap(&Arrayencoder,&sub_map_key,3);
     CborEncodeTextString(&sub_map_key,"Identifier");
-    CborEncodeTextString(&sub_map_key,Data->Identifier);
+    CborEncodeTextString(&sub_map_key,Data[i].Identifier);
     CborEncodeTextString(&sub_map_key,"Base");
-    CborEncodeUint64(&sub_map_key,Data->Base);
+    CborEncodeUint64(&sub_map_key,Data[i].Base);
     CborEncodeTextString(&sub_map_key,"Size");
-    CborEncodeUint64(&sub_map_key,Data->Size);
+    CborEncodeUint64(&sub_map_key,Data[i].Size);
     CborEncoderCloseContainer(&Arrayencoder,&sub_map_key);
-    CborEncoderCloseContainer(&RootMapEncoder,&Arrayencoder);
+    
   }
-
+  CborEncoderCloseContainer(&RootMapEncoder,&Arrayencoder);
   return EFI_SUCCESS;
 }

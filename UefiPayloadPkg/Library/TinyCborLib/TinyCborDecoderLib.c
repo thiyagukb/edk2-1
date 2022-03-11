@@ -121,7 +121,7 @@ CborDecoderGetTextString (
   CborValue next;
   cbor_value_calculate_string_length(Value,Size);
   ErrorType = cbor_value_copy_text_string	(	Value, (char *) Result, Size,  &next);
-
+  
   if(ErrorType == 0) {
     return EFI_SUCCESS;
   }
@@ -170,7 +170,7 @@ GetFromCborValueInMap (
   VOID       *Map
 )
 {
-  VOID *ElementPointer;
+  CborValue *ElementPointer;
   ElementPointer = CborDecoderFindValueInMap(String,Map);
   return ElementPointer;
 }
@@ -214,7 +214,7 @@ EFI_STATUS
 EFIAPI
 GetFromCborTextString (
   VOID    *Key,
-  BOOLEAN *Result,
+  UINT8   *Result,
   UINTN   *Size
 )
 {
@@ -237,7 +237,7 @@ GetFromCborByteString (
 }
 
 // Special APIs
-
+CborValue UpldataValue;
 EFI_STATUS
 EFIAPI
 GetfromCborUplExtraData (
@@ -247,36 +247,49 @@ GetfromCborUplExtraData (
 )
 {
   CborError ErrorType;
-  CborValue UpldataValue;
-  CborValue *UpldataSubmap,*ElementSubmap,next;
+
+  CborValue UpldataSubmap,*ElementSubmap,next;
   UINTN length ,Base,Size;
   UINT8 buf[7];
   CborError err;
 
-  UpldataSubmap = (VOID *)CborDecoderFindValueInMap("UplExtradata",&RootValue);
-  ErrorType = cbor_value_enter_container	(	UpldataSubmap,&UpldataValue );
-
+  cbor_value_map_find_value (&RootValue, "UplExtradata", &UpldataSubmap);
+  ErrorType = cbor_value_enter_container	(	&UpldataSubmap,&UpldataValue );
 
   if(ErrorType == 0) {
+    
+    if(Count > 1) {
+      for (int i = 0;i<Count;i++) {
+        ElementSubmap = CborDecoderFindValueInMap("Identifier",&UpldataValue);
+        GetFromCborTextString(ElementSubmap,buf,&length);
+        cbor_value_copy_text_string	(	ElementSubmap, (char *) (UINT8 *) &buf, &length,  &next);
+        CopyMem(Data[i].Identifier,buf,length);
 
-    ElementSubmap = CborDecoderFindValueInMap("Identifier",&UpldataValue);
-    cbor_value_calculate_string_length(ElementSubmap, &length);
-    GetFromCborTextString(ElementSubmap,buf,&length);
-    cbor_value_copy_text_string	(	ElementSubmap, (char *) (UINT8 *) &buf, &length,  &next);
-    CopyMem(Data->Identifier,buf,length);
-  
-    ElementSubmap = CborDecoderFindValueInMap("Base",&UpldataValue);
-    CborDecoderGetUint64(ElementSubmap,&Base);
-    Data->Base = Base;
-  
-    ElementSubmap = CborDecoderFindValueInMap("Size",&UpldataValue);
-    CborDecoderGetUint64(ElementSubmap,&Size);
-    Data->Size = Size;
+        ElementSubmap = CborDecoderFindValueInMap("Base",&UpldataValue);
+        CborDecoderGetUint64(ElementSubmap,&Base);
+        Data[i].Base = Base;
 
-    err = cbor_value_advance(UpldataSubmap);
-    /*ElementSubmap = CborDecoderFindValueInMap("Base",UpldataSubmap);
-    CborDecoderGetUint64(ElementSubmap,&Base);*/
-    DEBUG ((EFI_D_ERROR, "GetfromCborUplExtraData.Base: %x\n",UpldataValue.type ));
+        ElementSubmap = CborDecoderFindValueInMap("Size",&UpldataValue);
+        CborDecoderGetUint64(ElementSubmap,&Size);
+        Data[i].Size = Size;
+
+        err = cbor_value_advance(&UpldataValue);
+      }
+    }
+    else {
+      ElementSubmap = CborDecoderFindValueInMap("Identifier",&UpldataValue);
+      GetFromCborTextString(ElementSubmap,buf,&length);
+      cbor_value_copy_text_string	(	ElementSubmap, (char *) (UINT8 *) &buf, &length,  &next);
+      CopyMem(Data->Identifier,buf,length);
+
+      ElementSubmap = CborDecoderFindValueInMap("Base",&UpldataValue);
+      CborDecoderGetUint64(ElementSubmap,&Base);
+      Data->Base = Base;
+
+      ElementSubmap = CborDecoderFindValueInMap("Size",&UpldataValue);
+      CborDecoderGetUint64(ElementSubmap,&Size);
+      Data->Size = Size;
+    }
     return EFI_SUCCESS;
   }
   else {

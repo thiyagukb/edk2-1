@@ -433,15 +433,20 @@ IoWrite8(0x3f8,'F');
 
  // GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
 IoWrite8(0x3f8,'H');
-  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA Data;
-GetfromCborUplExtraData(&Data,CBorRootmap,1);
+  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA Data[2];
+GetfromCborUplExtraData((UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA *)&Data,CBorRootmap,2);
 DEBUG ((EFI_D_ERROR, "Serial->BaudRate : %x\n",Serial->BaudRate));
 DEBUG ((EFI_D_ERROR, "Serial->RegisterBase : %x\n",Serial->RegisterBase));
 DEBUG ((EFI_D_ERROR, "Serial->RegisterStride : %x\n",Serial->RegisterStride));
 DEBUG ((EFI_D_ERROR, "Serial->UseMmio : %x\n",Serial->UseMmio));
-DEBUG ((EFI_D_ERROR, "Data.Identifier: %a \n", Data.Identifier ));
-DEBUG ((EFI_D_ERROR, "Data.Base: %x\n", Data.Base ));
-DEBUG ((EFI_D_ERROR, "Data.Size: %x \n", Data.Size ));
+
+DEBUG ((EFI_D_ERROR, "Data[0].Identifier: %a \n", Data[0].Identifier ));
+DEBUG ((EFI_D_ERROR, "Data[0].Base: %x\n", Data[0].Base ));
+DEBUG ((EFI_D_ERROR, "Data[0].Size: %x \n", Data[0].Size ));
+
+DEBUG ((EFI_D_ERROR, "Data[1].Identifier: %a \n", Data[1].Identifier ));
+DEBUG ((EFI_D_ERROR, "Data[1].Base: %x\n", Data[1].Base ));
+DEBUG ((EFI_D_ERROR, "Data[1].Size: %x \n", Data[1].Size ));
   DEBUG_CODE (
     //
     // Dump the Hobs from boot loader
