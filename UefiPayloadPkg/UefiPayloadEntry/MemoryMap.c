@@ -500,9 +500,116 @@ FindFreeMemoryFromResourceDescriptorHob (
 }
 
 /**
+  If the hob list created by bootloader contains Memory allocation hobs or
+  resource descriptor hobs, they have high priority than hobs created based
+  on memory map. Revmove the duplicated hobs.
+
+  @param[in]  OldHob         The hob list created by bootloader.
+
+  @retval EFI_SUCCESS        If it completed successfully.
+  @retval Others             If it failed to build required HOBs.
+**/
+EFI_STATUS
+RemoveDuplicatedMemoryHobs (
+  IN EFI_PEI_HOB_POINTERS  OldHob
+  )
+{
+  EFI_PEI_HOB_POINTERS  OldHobCursor;
+  EFI_PEI_HOB_POINTERS  NewHobCursor;
+  EFI_PHYSICAL_ADDRESS  OldBase;
+  EFI_PHYSICAL_ADDRESS  OldLimit;
+  EFI_PHYSICAL_ADDRESS  NewBase;
+  EFI_PHYSICAL_ADDRESS  NewLimit;
+
+  OldHobCursor = OldHob;
+  while (!END_OF_HOB_LIST (OldHobCursor)) { 
+    if ((OldHobCursor.Header->HobType != EFI_HOB_TYPE_RESOURCE_DESCRIPTOR) &&
+        (OldHobCursor.Header->HobType != EFI_HOB_TYPE_MEMORY_ALLOCATION))
+    {
+      OldHobCursor.Raw = GET_NEXT_HOB (OldHobCursor);
+      continue;
+    }
+
+    //
+    // One resource descriptor hob is found in hoblist created by bootloader.
+    // Modify the Hob created based on memory map to avoid overlap among hobs
+    //
+    if (OldHobCursor.Header->HobType == EFI_HOB_TYPE_RESOURCE_DESCRIPTOR) {
+      OldBase          = OldHobCursor.ResourceDescriptor->PhysicalStart;
+      OldLimit         = OldBase + OldHobCursor.ResourceDescriptor->ResourceLength;
+      NewHobCursor.Raw = GetHobList ();
+      NewHobCursor.Raw = GetNextHob (EFI_HOB_TYPE_RESOURCE_DESCRIPTOR, NewHobCursor.Raw);
+      while (NewHobCursor.Raw != NULL) {
+        NewBase  = NewHobCursor.ResourceDescriptor->PhysicalStart;
+        NewLimit = NewBase + NewHobCursor.ResourceDescriptor->ResourceLength;
+        if ((OldBase == NewBase) && (OldLimit == NewLimit)) {
+          NewHobCursor.ResourceDescriptor->Header.HobType = EFI_HOB_TYPE_UNUSED;
+        } else if ((OldBase == NewBase) && (OldLimit < NewLimit)) {
+          NewHobCursor.ResourceDescriptor->PhysicalStart  = OldLimit;
+          NewHobCursor.ResourceDescriptor->ResourceLength = NewLimit - OldLimit;
+        } else if ((OldBase > NewBase) && (OldLimit == NewLimit)) {
+          NewHobCursor.ResourceDescriptor->ResourceLength = OldBase - NewBase;
+        } else if ((OldBase > NewBase) && (OldLimit < NewLimit)) {
+          NewHobCursor.ResourceDescriptor->ResourceLength = OldBase - NewBase;
+          BuildResourceDescriptorHob (
+            NewHobCursor.ResourceDescriptor->ResourceType,
+            NewHobCursor.ResourceDescriptor->ResourceAttribute,
+            OldLimit,
+            NewLimit - OldLimit
+            );
+        } else {
+          NewHobCursor.Raw = GET_NEXT_HOB (NewHobCursor.Raw);
+          NewHobCursor.Raw = GetNextHob (EFI_HOB_TYPE_RESOURCE_DESCRIPTOR, NewHobCursor.Raw);
+          continue;
+        }
+        break;
+      }
+    }
+
+    //
+    // One memory allocation hob is found in hoblist created by bootloader.
+    // Modify the Hob created based on memory map to avoid overlap among hobs
+    //
+    if (OldHobCursor.Header->HobType == EFI_HOB_TYPE_MEMORY_ALLOCATION) {
+      OldBase          = OldHobCursor.MemoryAllocation->AllocDescriptor.MemoryBaseAddress;
+      OldLimit         = OldBase + OldHobCursor.MemoryAllocation->AllocDescriptor.MemoryLength;
+      NewHobCursor.Raw = GetHobList ();
+      NewHobCursor.Raw = GetNextHob (EFI_HOB_TYPE_MEMORY_ALLOCATION, NewHobCursor.Raw);
+      while (NewHobCursor.Raw != NULL) {
+        NewBase  = NewHobCursor.MemoryAllocation->AllocDescriptor.MemoryBaseAddress;
+        NewLimit = NewBase + NewHobCursor.MemoryAllocation->AllocDescriptor.MemoryLength;
+        if ((OldBase == NewBase) && (OldLimit == NewLimit)) {
+          NewHobCursor.MemoryAllocation->Header.HobType = EFI_HOB_TYPE_UNUSED;
+        } else if ((OldBase == NewBase) && (OldLimit < NewLimit)) {
+          NewHobCursor.MemoryAllocation->AllocDescriptor.MemoryBaseAddress = OldLimit;
+          NewHobCursor.MemoryAllocation->AllocDescriptor.MemoryLength      = NewLimit - OldLimit;
+        } else if ((OldBase > NewBase) && (OldLimit == NewLimit)) {
+          NewHobCursor.MemoryAllocation->AllocDescriptor.MemoryLength = OldBase - NewBase;
+        } else if ((OldBase > NewBase) && (OldLimit < NewLimit)) {
+          NewHobCursor.MemoryAllocation->AllocDescriptor.MemoryLength = OldBase - NewBase;
+          BuildMemoryAllocationHob (
+            OldLimit,
+            NewLimit - OldLimit,
+            NewHobCursor.MemoryAllocation->AllocDescriptor.MemoryType
+            );
+        } else {
+          NewHobCursor.Raw = GET_NEXT_HOB (NewHobCursor.Raw);
+          NewHobCursor.Raw = GetNextHob (EFI_HOB_TYPE_MEMORY_ALLOCATION, NewHobCursor.Raw);
+          continue;
+        }
+        break;
+      }
+    }
+
+    OldHobCursor.Raw = GET_NEXT_HOB (OldHobCursor.Raw);
+  }
+  return EFI_SUCCESS;
+}
+
+/**
   Create new Hand-off Hob and parse Memory Map.
 
-  @param[in]  BootloaderParameter   The starting memory address of bootloader parameter block.
+  @param[in]  Hob            The hob list created by bootloader.
 
   @retval EFI_SUCCESS        If it completed successfully.
   @retval Others             If it failed to build required HOBs.
@@ -556,6 +663,10 @@ CreateHandOffHobAndParseMemoryMap (
   //
   if (MemoryMapHob != NULL) {
     Status = CreateHobsBasedOnMemoryMap ((UNIVERSAL_PAYLOAD_MEMORY_MAP *)GET_GUID_HOB_DATA (MemoryMapHob));
+    if (EFI_ERROR (Status)) {
+      return Status;
+    } 
+    Status = RemoveDuplicatedMemoryHobs (Hob);
   }
 
   return Status;

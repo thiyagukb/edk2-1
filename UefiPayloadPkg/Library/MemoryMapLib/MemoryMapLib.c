@@ -470,7 +470,9 @@ BuildMemoryMap (
           }
 
           if (Round == 1) {
-            MemoryAllocationHobPtr[Index]->Header.HobType = EFI_HOB_TYPE_UNUSED;
+            if (IsZeroGuid(&MemoryAllocationHobPtr[Index]->AllocDescriptor.Name)) {
+              MemoryAllocationHobPtr[Index]->Header.HobType = EFI_HOB_TYPE_UNUSED;
+            }
           }
         }
       } while (MemoryAllocationHobCount != 0);
@@ -495,7 +497,9 @@ BuildMemoryMap (
       }
 
       if (Round == 1) {
-        CurrentResourceHob->Header.HobType = EFI_HOB_TYPE_UNUSED;
+        if (IsZeroGuid(&CurrentResourceHob->Owner)) {
+          CurrentResourceHob->Header.HobType = EFI_HOB_TYPE_UNUSED;
+        }
       }
 
       CurrentResourceHob = GetSmallestResourceHob (CurrentInfo.CurrentEnd);
