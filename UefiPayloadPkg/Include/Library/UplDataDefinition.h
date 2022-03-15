@@ -51,5 +51,12 @@ typedef struct {
   UINT64                      ResourceLength;
 } EFI_HOB_RESOURCE_DESCRIPTOR_DATA;
 
+typedef struct {
+  EFI_GUID                Name;
+  EFI_PHYSICAL_ADDRESS    MemoryBaseAddress;
+  UINT64                  MemoryLength;
+  EFI_MEMORY_TYPE         MemoryType;
+} EFI_HOB_MEMORY_ALLOCATION_DATA;
+
 #pragma pack()
 #endif

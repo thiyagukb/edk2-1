@@ -276,6 +276,50 @@ GetUplResourceData (
   return EFI_SUCCESS;
 }
 
+RETURN_STATUS
+EFIAPI
+GetUplMemoryAllocationData (
+  IN OUT EFI_HOB_MEMORY_ALLOCATION_DATA           *Data,
+  IN OUT UINTN                                    *Count,
+  IN     UINTN                                    Index
+  )
+{
+  UINTN             Size,BinarySize, LocalIndex;
+  UPL_DATA_DECODER  SubMap;
+
+  CborDecoderGetArrayLengthAndFirstElement ("ResourceAllocation", &Size, &SubMap);
+  if (*Count == 0) {
+    *Count = Size;
+    return RETURN_BUFFER_TOO_SMALL;
+  }
+
+  if (Index >= Size) {
+    return RETURN_UNSUPPORTED;
+  }
+
+  //
+  // Skip the first Index element.
+  //
+  for (LocalIndex = 0; LocalIndex < Index; LocalIndex++) {
+    CborDecoderGetArrayNextMap (&SubMap);
+  }
+
+  for (LocalIndex = 0; LocalIndex < *Count && LocalIndex < (Size -Index); LocalIndex++) {
+    if (LocalIndex != 0) {
+      CborDecoderGetArrayNextMap (&SubMap);
+    }
+    BinarySize = sizeof(Data[LocalIndex].Name);
+    CborDecoderGetBinary ("Name", &Data[LocalIndex].Name,&BinarySize, &SubMap);
+    CborDecoderGetUint64 ("Base", (UINT64 *)&Data[LocalIndex].MemoryBaseAddress, &SubMap);
+    CborDecoderGetUint64 ("Length", (UINT64 *)&Data[LocalIndex].MemoryLength, &SubMap);
+    CborDecoderGetUint64 ("Type", (UINT64 *)&Data[LocalIndex].MemoryType, &SubMap);
+
+  }
+  *Count = LocalIndex;
+
+  return EFI_SUCCESS;
+}
+
 VOID
 EFIAPI
 GetCbor (
@@ -295,6 +339,7 @@ GetCbor (
   BOOLEAN Res;
   UINT8 Res8;
   EFI_HOB_RESOURCE_DESCRIPTOR_DATA         TestData[2];
+  EFI_HOB_MEMORY_ALLOCATION_DATA           TestDataMemalloc[2];
 GetUplBinary("MyGuid",&buf,&size1);
 DEBUG ((DEBUG_INFO, "KBT MyGuid: %g\n",buf));
 GetUplBoolean("UseMmio",&Res);
@@ -326,4 +371,14 @@ DEBUG ((DEBUG_INFO, "KBT Test: %x\n",Res8));
 
   GetUplUint64("SerialPortBaudRate", &TempData);
 
+  GetUplMemoryAllocationData((EFI_HOB_MEMORY_ALLOCATION_DATA *)TestDataMemalloc,&Count,Index);
+
+  DEBUG ((EFI_D_ERROR, "TestDataMemalloc[0].Owner: %g \n", TestDataMemalloc[0].Name));
+  DEBUG ((EFI_D_ERROR, "TestDataMemalloc[0].MemoryBaseAddress: %x \n", TestDataMemalloc[0].MemoryBaseAddress));
+  DEBUG ((EFI_D_ERROR, "TestDataMemalloc[0].MemoryLength: %x \n", TestDataMemalloc[0].MemoryLength));
+  DEBUG ((EFI_D_ERROR, "TestDataMemalloc[0].MemoryType: %x \n", TestDataMemalloc[0].MemoryType));
+  DEBUG ((EFI_D_ERROR, "TestDataMemalloc[1].Owner: %g \n", TestDataMemalloc[1].Name));
+  DEBUG ((EFI_D_ERROR, "TestDataMemalloc[1].MemoryBaseAddress: %x \n", TestDataMemalloc[1].MemoryBaseAddress));
+  DEBUG ((EFI_D_ERROR, "TestDataMemalloc[1].MemoryLength: %x \n", TestDataMemalloc[1].MemoryLength));
+  DEBUG ((EFI_D_ERROR, "TestDataMemalloc[1].MemoryType: %x \n", TestDataMemalloc[1].MemoryType));
 }

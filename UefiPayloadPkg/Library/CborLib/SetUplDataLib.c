@@ -375,6 +375,36 @@ SetUplResourceData (
 
 RETURN_STATUS
 EFIAPI
+SetUplMemoryAllocationData (
+  IN EFI_HOB_MEMORY_ALLOCATION_DATA           *Data,
+  IN UINTN                                    Count
+  )
+{
+  VOID   *ArrayEncoder;
+  VOID   *SubMapEncoder;
+  UINTN  Index;
+
+  CborEncodeTextString (RootMapEncoderPointer, "ResourceAllocation");
+  CborEncoderCreateArray (RootMapEncoderPointer, &ArrayEncoder, Count);
+  for (Index = 0; Index < Count; Index++) {
+    CborEncoderCreateSubMap (ArrayEncoder, &SubMapEncoder);
+    CborEncodeTextString (SubMapEncoder, "Name");
+    CborEncodeByteString (SubMapEncoder, (UINT8 *)&Data[Index].Name,sizeof(Data[Index].Name));
+    CborEncodeTextString (SubMapEncoder, "Base");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].MemoryBaseAddress);
+    CborEncodeTextString (SubMapEncoder, "Length");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].MemoryLength);
+    CborEncodeTextString (SubMapEncoder, "Type");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].MemoryType);
+    CborEncoderCloseContainer (ArrayEncoder, SubMapEncoder);
+  }
+
+  CborEncoderCloseContainer (RootMapEncoderPointer, ArrayEncoder);
+  return EFI_SUCCESS;
+}
+
+RETURN_STATUS
+EFIAPI
 SetCbor (
   OUT VOID   **Buffer,
   OUT UINTN  *Size
