@@ -463,12 +463,12 @@ UniversalPayloadInitialization (
   DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%04x\n",  __FUNCTION__, PciRootBridgeInfo->ResourceAssigned));
   DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%x\n",  __FUNCTION__, (UINTN)PciRootBridgeInfo->RootBridge[0].Bus.Limit));
 
-  VOID   *Data;
-  VOID   *Buffer;
-  UINTN  Size;
-  SetCbor (&Buffer, &Size);
-  Data = BuildGuidHob (&gCborBufferGuid, Size);
-  CopyMem(Data, Buffer, Size);
+  //VOID   *Data;
+  //VOID   *Buffer;
+  //UINTN  Size;
+  //SetCbor (&Buffer, &Size);
+  //Data = BuildGuidHob (&gCborBufferGuid, Size);
+  //CopyMem(Data, Buffer, Size);
 
   return EFI_SUCCESS;
 }

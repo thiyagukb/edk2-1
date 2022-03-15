@@ -36,6 +36,12 @@
   PeimEntryPoint
   DebugLib
   MemoryMapLib
+  SetUplDataLib
+  HobLib
+
+[Guids]
+  gUniversalPayloadMemoryMapGuid
+  gCborBufferGuid
 
 [Ppis]
   gEdkiiPrepareForUniversalPayloadPpiGuid                 ## PRODUCES

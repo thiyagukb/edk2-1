@@ -323,6 +323,7 @@ MemEncryptSevLib|OvmfPkg/Library/BaseMemEncryptSevLib/SecMemEncryptSevLib.inf
 !endif
 
   MemEncryptSevLib|OvmfPkg/Library/BaseMemEncryptSevLib/PeiMemEncryptSevLib.inf
+  SetUplDataLib|UefiPayloadPkg/Library/CborLib/SetUplDataLib.inf
 
 [LibraryClasses.common.DXE_CORE]
   HobLib|MdePkg/Library/DxeCoreHobLib/DxeCoreHobLib.inf
@@ -712,7 +713,6 @@ gEfiMdePkgTokenSpaceGuid.PcdConfidentialComputingGuestAttr|0
   MdeModulePkg/Core/DxeIplPeim/DxeIpl.inf {
     <LibraryClasses>
       NULL|MdeModulePkg/Library/LzmaCustomDecompressLib/LzmaCustomDecompressLib.inf
-      NULL|UefiPayloadPkg/Library/CborLib/SetUplDataLib.inf
   }
 
 !if $(UNIVERSAL_PAYLOAD) == TRUE

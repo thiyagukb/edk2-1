@@ -9,6 +9,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #ifndef __UPL_DATA_DEFINITION_H__
 #define __UPL_DATA_DEFINITION_H__
 
+#include <Uefi/UefiSpec.h>
+
 typedef struct {
   CHAR8                   Identifier[16];
   EFI_PHYSICAL_ADDRESS    Base;

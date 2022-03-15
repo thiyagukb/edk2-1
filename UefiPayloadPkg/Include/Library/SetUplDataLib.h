@@ -63,4 +63,10 @@ SetUplExtraData (
   IN UINTN                                    Count
   );
 
+RETURN_STATUS
+EFIAPI
+SetUplMemoryMap (
+  IN EFI_MEMORY_DESCRIPTOR  *Data,
+  IN UINTN                  Count
+  );
 #endif

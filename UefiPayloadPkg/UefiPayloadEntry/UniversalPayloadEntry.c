@@ -6,6 +6,7 @@
 **/
 
 #include "UefiPayloadEntry.h"
+#include <Library/GetUplDataLib.h>
 
 extern VOID  *mHobList;
 
@@ -225,6 +226,22 @@ BuildHobs (
   return EFI_SUCCESS;
 }
 
+
+EFI_STATUS
+EFIAPI
+Spec1_0Entry (
+  IN UINTN  BootloaderParameter
+  )
+{
+  // Call constructor for all libraries
+  ProcessLibraryConstructorList ();
+
+
+  DEBUG ((DEBUG_INFO, "Entering Universal Payload...\n"));
+  DEBUG ((DEBUG_INFO, "sizeof(UINTN) = 0x%x\n", sizeof (UINTN)));
+    return EFI_SUCCESS;
+}
+
 /**
   Entry point to the C language phase of UEFI payload.
 
@@ -242,7 +259,7 @@ _ModuleEntryPoint (
   PHYSICAL_ADDRESS            DxeCoreEntryPoint;
   EFI_PEI_HOB_POINTERS        Hob;
   EFI_FIRMWARE_VOLUME_HEADER  *DxeFv;
-
+  //Spec1_0Entry(BootloaderParameter);
   mHobList = (VOID *)BootloaderParameter;
   DxeFv    = NULL;
   // Call constructor for all libraries

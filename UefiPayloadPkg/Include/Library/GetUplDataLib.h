@@ -42,4 +42,12 @@ GetUplExtraData (
   IN     UINTN                                    Index
   );
 
+RETURN_STATUS
+EFIAPI
+GetUplMemoryMap (
+  IN OUT EFI_MEMORY_DESCRIPTOR  *Data,
+  IN OUT UINTN                  *Count,
+  IN     UINTN                  Index
+  );
+
 #endif

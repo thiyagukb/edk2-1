@@ -11,6 +11,18 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Library/PeiServicesLib.h>
 #include <Ppi/PrepareForUniversalPayload.h>
 #include <Library/MemoryMapLib.h>
+#include <Library/SetUplDataLib.h>
+#include <Uefi/UefiSpec.h>
+#include <UniversalPayload/MemoryMap.h>
+#include <Library/HobLib.h>
+#include <Library/BaseMemoryLib.h>
+
+RETURN_STATUS
+EFIAPI
+SetCbor (
+  OUT VOID                **Buffer,
+  OUT UINTN               *Size
+  );
 
 VOID *
 EFIAPI
@@ -18,13 +30,54 @@ PrepareForUniversalPayload (
   VOID  *HobStart
   )
 {
-  RETURN_STATUS  Status;
+  RETURN_STATUS                 Status;
+  VOID                          *MemHob;
+  UNIVERSAL_PAYLOAD_MEMORY_MAP  *MemoryMapHob;
+  EFI_PEI_HOB_POINTERS                      Hob;
+
 
   DEBUG ((DEBUG_INFO, "Begin to do necessary preparation for Universal Payload\n"));
   Status = BuildMemoryMap ();
   if (RETURN_ERROR (Status)) {
     return NULL;
   }
+
+  MemHob          = GetFirstGuidHob (&gUniversalPayloadMemoryMapGuid);
+  MemoryMapHob = (UNIVERSAL_PAYLOAD_MEMORY_MAP *)GET_GUID_HOB_DATA (MemHob);
+  DEBUG ((DEBUG_INFO, "SetUplMemoryMap\n"));
+  SetUplMemoryMap (MemoryMapHob->MemoryMap, MemoryMapHob->Count);
+  Hob.Raw = (VOID *)GetHobList ();
+  SetUplUint64 ("HobList", (UINT64)(UINTN)Hob.Raw);
+
+  VOID   *Data;
+  VOID   *Buffer;
+  UINTN  Size;
+  //SetCbor (&Buffer, &Size);
+  LockUplAndGetBuffer (&Buffer, &Size);
+  Data = BuildGuidHob (&gCborBufferGuid, Size);
+  CopyMem(Data, Buffer, Size);
+
+
+  /*
+  Hob.Raw = (VOID *)GetHobList ();
+  while (!END_OF_HOB_LIST (Hob)) {
+    Hob.Raw = GET_NEXT_HOB (Hob);
+    if (Hob.Header->HobType == EFI_HOB_TYPE_HANDOFF || Hob.Header->HobType == EFI_HOB_TYPE_END_OF_HOB_LIST || Hob.Header->HobType ==  EFI_HOB_TYPE_CPU ||
+        Hob.Header->HobType == EFI_HOB_TYPE_RESOURCE_DESCRIPTOR || Hob.Header->HobType == EFI_HOB_TYPE_MEMORY_ALLOCATION) {
+      continue;
+    }
+    //if (Hob.Header->HobType == EFI_HOB_TYPE_GUID_EXTENSION) {
+    //  if (CompareGuid (&Hob.Guid->Name, &gUniversalPayloadAcpiTableGuid) || CompareGuid (&Hob.Guid->Name, &gUniversalPayloadSerialPortInfoGuid) ||
+    //      CompareGuid (&Hob.Guid->Name, &gUniversalPayloadSmbios3TableGuid) || CompareGuid (&Hob.Guid->Name, &gUniversalPayloadSmbiosTableGuid) ||
+    //      CompareGuid (&Hob.Guid->Name, &gUefiAcpiBoardInfoGuid) || CompareGuid (&Hob.Guid->Name, &gUniversalPayloadPciRootBridgeInfoGuid) ||
+    //      CompareGuid (&Hob.Guid->Name, &gUniversalPayloadExtraDataGuid) || CompareGuid (&Hob.Guid->Name, &gPcdDataBaseHobGuid) ||
+    //      CompareGuid (&Hob.Guid->Name, &gCborBufferGuid)) {
+    //    continue;
+    //  }
+    //}
+    Hob.Header->HobType = EFI_HOB_TYPE_UNUSED;
+  }
+  */
 
   return HobStart;
 }

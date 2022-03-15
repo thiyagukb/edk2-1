@@ -63,8 +63,8 @@ SetUplUint64 (
 RETURN_STATUS
 EFIAPI
 SetUplUint8 (
-  IN CHAR8   *Key,
-  IN UINT8   Value
+  IN CHAR8  *Key,
+  IN UINT8  Value
   )
 {
   RETURN_STATUS  Status;
@@ -136,7 +136,6 @@ SetUplBoolean (
   return Status;
 }
 
-
 RETURN_STATUS
 EFIAPI
 LockUplAndGetBuffer (
@@ -180,6 +179,36 @@ SetUplExtraData (
   return EFI_SUCCESS;
 }
 
+RETURN_STATUS
+EFIAPI
+SetUplMemoryMap (
+  IN EFI_MEMORY_DESCRIPTOR  *Data,
+  IN UINTN                  Count
+  )
+{
+  VOID   *ArrayEncoder;
+  VOID   *SubMapEncoder;
+  UINTN  Index;
+
+  CborEncodeTextString (RootMapEncoderPointer, "MemoryMap");
+  CborEncoderCreateArray (RootMapEncoderPointer, &ArrayEncoder, Count);
+  for (Index = 0; Index < Count; Index++) {
+    CborEncoderCreateSubMap (ArrayEncoder, &SubMapEncoder);
+    CborEncodeTextString (SubMapEncoder, "Base");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].PhysicalStart);
+    CborEncodeTextString (SubMapEncoder, "NumberOfPages");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].NumberOfPages);
+    CborEncodeTextString (SubMapEncoder, "Type");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Type);
+    CborEncodeTextString (SubMapEncoder, "Attribute");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Attribute);
+    CborEncoderCloseContainer (ArrayEncoder, SubMapEncoder);
+  }
+
+  CborEncoderCloseContainer (RootMapEncoderPointer, ArrayEncoder);
+  return EFI_SUCCESS;
+}
+
 UINT8  buf11[16];
 
 UINTN
@@ -205,6 +234,8 @@ PrintHex1 (
 
   return 0;
 }
+
+
 
 RETURN_STATUS
 EFIAPI
