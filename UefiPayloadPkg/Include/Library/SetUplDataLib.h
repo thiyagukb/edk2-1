@@ -63,4 +63,11 @@ SetUplExtraData (
   IN UINTN                                    Count
   );
 
+RETURN_STATUS
+EFIAPI
+SetUplPciRootBridges (
+  IN UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO  *Data,
+  IN UINTN                                    Count
+  );
+
 #endif

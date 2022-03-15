@@ -19,6 +19,7 @@
 #include <Library/QemuFwCfgLib.h>
 #include <OvmfPlatforms.h>
 #include <Library/BaseMemoryLib.h>
+#include <Library/SetUplDataLib.h>
 
 STATIC UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_APERTURE mNonExistAperture = { MAX_UINT64, 0 };
 
@@ -404,7 +405,6 @@ UniversalPayloadInitialization (
   )
 {
   UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO  *Serial;
-  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES  *PciRootBridgeInfo;
   UINT16                              HostBridgeDevId;
   UINTN                               Pmba;
   EFI_FIRMWARE_VOLUME_HEADER          *UplFv;
@@ -453,19 +453,10 @@ UniversalPayloadInitialization (
   UINTN         RootBridgeCount;
   RootBridge = PeiPciHostBridgeGetRootBridges(&RootBridgeCount);
 
-  PciRootBridgeInfo = BuildGuidHob (&gUniversalPayloadPciRootBridgeInfoGuid, sizeof (PciRootBridgeInfo) + sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
-  CopyMem(PciRootBridgeInfo->RootBridge, RootBridge, sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
-  PciRootBridgeInfo->Count = (UINT8)RootBridgeCount;
-  PciRootBridgeInfo->Header.Length = sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE);
-  PciRootBridgeInfo->Header.Revision =  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES_REVISION;
-  DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->Count: 0x%04x\n",  __FUNCTION__, RootBridgeCount));
-  PciRootBridgeInfo->ResourceAssigned = FALSE;
-  DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%04x\n",  __FUNCTION__, PciRootBridgeInfo->ResourceAssigned));
-  DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%x\n",  __FUNCTION__, (UINTN)PciRootBridgeInfo->RootBridge[0].Bus.Limit));
-
   VOID   *Data;
   VOID   *Buffer;
   UINTN  Size;
+  SetUplPciRootBridges((UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO *)RootBridge,RootBridgeCount);
   SetCbor (&Buffer, &Size);
   Data = BuildGuidHob (&gCborBufferGuid, Size);
   CopyMem(Data, Buffer, Size);

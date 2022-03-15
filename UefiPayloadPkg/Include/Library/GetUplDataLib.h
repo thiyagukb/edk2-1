@@ -67,4 +67,11 @@ GetUplExtraData (
   IN     UINTN                                    Index
   );
 
+RETURN_STATUS
+EFIAPI
+GetUplPciRootBridges (
+  IN OUT UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO  *Data,
+  IN OUT UINTN                                    *Count,
+  IN     UINTN                                    Index
+  );
 #endif

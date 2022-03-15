@@ -119,6 +119,71 @@ GetUplExtraData (
   return EFI_SUCCESS;
 }
 
+RETURN_STATUS
+EFIAPI
+GetUplPciRootBridges (
+  IN OUT UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO  *Data,
+  IN OUT UINTN                                    *Count,
+  IN     UINTN                                    Index
+  )
+{
+  UINTN             Size, LocalIndex;
+  UPL_DATA_DECODER  SubMap;
+
+  CborDecoderGetArrayLengthAndFirstElement ("RootBridgeInfo", &Size, &SubMap);
+  if (*Count == 0) {
+    *Count = Size;
+    return RETURN_BUFFER_TOO_SMALL;
+  }
+
+  if (Index >= Size) {
+    return RETURN_UNSUPPORTED;
+  }
+
+  //
+  // Skip the first Index element.
+  //
+  for (LocalIndex = 0; LocalIndex < Index; LocalIndex++) {
+    CborDecoderGetArrayNextMap (&SubMap);
+  }
+
+  for (LocalIndex = 0; LocalIndex < *Count && LocalIndex < (Size -Index); LocalIndex++) {
+    if (LocalIndex != 0) {
+      CborDecoderGetArrayNextMap (&SubMap);
+    }
+
+    CborDecoderGetUint64 ("Segment", (UINT64 *)&Data[LocalIndex].Segment, &SubMap);
+    CborDecoderGetUint64 ("Supports", &Data[LocalIndex].Supports, &SubMap);
+    CborDecoderGetUint64 ("Attributes", &Data[LocalIndex].Attributes, &SubMap);
+    CborDecoderGetBoolean ("DmaAbove4G", &Data[LocalIndex].DmaAbove4G, &SubMap);
+    CborDecoderGetBoolean ("NoExtendedConfigSpace", &Data[LocalIndex].NoExtendedConfigSpace, &SubMap);
+    CborDecoderGetUint64 ("AllocationAttributes", &Data[LocalIndex].AllocationAttributes, &SubMap);
+    CborDecoderGetUint64 ("BusBase", &Data[LocalIndex].Bus.Base, &SubMap);
+    CborDecoderGetUint64 ("BusLimit", &Data[LocalIndex].Bus.Limit, &SubMap);
+    CborDecoderGetUint64 ("BusTranslation", &Data[LocalIndex].Bus.Translation, &SubMap);
+    CborDecoderGetUint64 ("IoBase", &Data[LocalIndex].Io.Base, &SubMap);
+    CborDecoderGetUint64 ("IoLimit", &Data[LocalIndex].Io.Limit, &SubMap);
+    CborDecoderGetUint64 ("IoTranslation", &Data[LocalIndex].Io.Translation, &SubMap);
+    CborDecoderGetUint64 ("MemBase", &Data[LocalIndex].Mem.Base, &SubMap);
+    CborDecoderGetUint64 ("MemLimit", &Data[LocalIndex].Mem.Limit, &SubMap);
+    CborDecoderGetUint64 ("MemTranslation", &Data[LocalIndex].Mem.Translation, &SubMap);
+    CborDecoderGetUint64 ("MemAbove4GBase", &Data[LocalIndex].MemAbove4G.Base, &SubMap);
+    CborDecoderGetUint64 ("MemAbove4GLimit", &Data[LocalIndex].MemAbove4G.Limit, &SubMap);
+    CborDecoderGetUint64 ("MemAbove4GTranslation", &Data[LocalIndex].MemAbove4G.Translation, &SubMap);
+    CborDecoderGetUint64 ("PMemBase", &Data[LocalIndex].PMem.Base, &SubMap);
+    CborDecoderGetUint64 ("PMemLimit", &Data[LocalIndex].PMem.Limit, &SubMap);
+    CborDecoderGetUint64 ("PMemTranslation", &Data[LocalIndex].PMem.Translation, &SubMap);
+    CborDecoderGetUint64 ("PMemAbove4GBase", &Data[LocalIndex].PMemAbove4G.Base, &SubMap);
+    CborDecoderGetUint64 ("PMemAbove4GLimit", &Data[LocalIndex].PMemAbove4G.Limit, &SubMap);
+    CborDecoderGetUint64 ("PMemAbove4GTranslation", &Data[LocalIndex].PMemAbove4G.Translation, &SubMap);
+    CborDecoderGetUint64 ("HID", (UINT64 *)&Data[LocalIndex].HID, &SubMap);
+    CborDecoderGetUint64 ("UID", (UINT64 *)&Data[LocalIndex].UID, &SubMap);
+  }
+  *Count = LocalIndex;
+
+  return EFI_SUCCESS;
+}
+
 VOID
 EFIAPI
 GetCbor (

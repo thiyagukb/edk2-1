@@ -6,6 +6,8 @@
 **/
 
 #include "UefiPayloadEntry.h"
+#include <UniversalPayload/PciRootBridges.h>
+#include <Library/GetUplDataLib.h>
 
 #define MEMORY_ATTRIBUTE_MASK  (EFI_RESOURCE_ATTRIBUTE_PRESENT             |        \
                                        EFI_RESOURCE_ATTRIBUTE_INITIALIZED         | \
@@ -455,12 +457,7 @@ _ModuleEntryPoint (
   DEBUG ((DEBUG_INFO, "Entering Universal Payload...\n"));
   DEBUG ((DEBUG_INFO, "sizeof(UINTN) = 0x%x\n", sizeof (UINTN)));
 
-  DEBUG_CODE (
-    //
-    // Dump the Hobs from boot loader
-    //
-    PrintHob (mHobList);
-    );
+
 
   // Initialize floating point operating environment to be compliant with UEFI spec.
   InitializeFloatingPointUnits ();
@@ -480,8 +477,26 @@ _ModuleEntryPoint (
     return EFI_NOT_FOUND;
   }
   GetCbor (GET_GUID_HOB_DATA (GuidHob), GET_GUID_HOB_DATA_SIZE(GuidHob));
+  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES  *PciRootBridgeInfo;
+  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE  RootBridge;
+  UINTN Count;
+  GetUplPciRootBridges((UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO *)&RootBridge,&Count,0);
+PciRootBridgeInfo = BuildGuidHob (&gUniversalPayloadPciRootBridgeInfoGuid, sizeof (PciRootBridgeInfo) + sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
+  CopyMem(PciRootBridgeInfo->RootBridge, &RootBridge, sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
+  PciRootBridgeInfo->Count = (UINT8)Count;
+  PciRootBridgeInfo->Header.Length = sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE);
+  PciRootBridgeInfo->Header.Revision =  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES_REVISION;
+  DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->Count: 0x%04x\n",  __FUNCTION__, Count));
+  PciRootBridgeInfo->ResourceAssigned = FALSE;
+  DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%04x\n",  __FUNCTION__, PciRootBridgeInfo->ResourceAssigned));
+  DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%x\n",  __FUNCTION__, (UINTN)PciRootBridgeInfo->RootBridge[0].Bus.Limit));
 
-
+  DEBUG_CODE (
+    //
+    // Dump the Hobs from boot loader
+    //
+    PrintHob (mHobList);
+    );
   //
   // Mask off all legacy 8259 interrupt sources
   //

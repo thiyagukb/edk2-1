@@ -208,6 +208,108 @@ PrintHex1 (
 
 RETURN_STATUS
 EFIAPI
+SetUplPciRootBridges (
+  IN UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO  *Data,
+  IN UINTN                                    Count
+  )
+{
+  VOID   *ArrayEncoder;
+  VOID   *SubMapEncoder;
+  UINTN  Index;
+
+
+  CborEncodeTextString (RootMapEncoderPointer, "RootBridgeInfo");
+  CborEncoderCreateArray (RootMapEncoderPointer, &ArrayEncoder, Count);
+
+  for (Index = 0; Index < Count; Index++) {
+    CborEncoderCreateSubMap (ArrayEncoder, &SubMapEncoder);
+
+    CborEncodeTextString (SubMapEncoder, "Segment");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Segment);
+
+    CborEncodeTextString (SubMapEncoder, "Supports");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Supports);
+
+    CborEncodeTextString (SubMapEncoder, "Attributes");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Attributes);
+
+    CborEncodeTextString (SubMapEncoder, "DmaAbove4G");
+    CborEncodeBoolean (SubMapEncoder, Data[Index].DmaAbove4G);
+
+    CborEncodeTextString (SubMapEncoder, "NoExtendedConfigSpace");
+    CborEncodeBoolean (SubMapEncoder, Data[Index].NoExtendedConfigSpace);
+
+    CborEncodeTextString (SubMapEncoder, "AllocationAttributes");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].AllocationAttributes);
+
+    CborEncodeTextString (SubMapEncoder, "BusBase");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Bus.Base);
+
+    CborEncodeTextString (SubMapEncoder, "BusLimit");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Bus.Limit);
+
+    CborEncodeTextString (SubMapEncoder, "BusTranslation");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Bus.Translation );
+
+    CborEncodeTextString (SubMapEncoder, "IoBase");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Io.Base);
+
+    CborEncodeTextString (SubMapEncoder, "IoLimit");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Io.Limit);
+
+    CborEncodeTextString (SubMapEncoder, "IoTranslation");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Io.Translation);
+
+    CborEncodeTextString (SubMapEncoder, "MemBase");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Mem.Base);
+
+    CborEncodeTextString (SubMapEncoder, "MemLimit");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Mem.Limit);
+
+    CborEncodeTextString (SubMapEncoder, "MemTranslation");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].Mem.Translation);
+
+    CborEncodeTextString (SubMapEncoder, "MemAbove4GBase");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].MemAbove4G.Base);
+
+    CborEncodeTextString (SubMapEncoder, "MemAbove4GLimit");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].MemAbove4G.Limit);
+
+    CborEncodeTextString (SubMapEncoder, "MemAbove4GTranslation");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].MemAbove4G.Translation);
+
+    CborEncodeTextString (SubMapEncoder, "PMemBase");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].PMem.Base);
+
+    CborEncodeTextString (SubMapEncoder, "PMemLimit");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].PMem.Limit);
+
+    CborEncodeTextString (SubMapEncoder, "PMemTranslation");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].PMem.Translation);
+
+    CborEncodeTextString (SubMapEncoder, "PMemAbove4GBase");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].PMemAbove4G.Base);
+
+    CborEncodeTextString (SubMapEncoder, "PMemAbove4GLimit");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].PMemAbove4G.Limit);
+
+    CborEncodeTextString (SubMapEncoder, "PMemAbove4GTranslation");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].PMemAbove4G.Translation);
+
+    CborEncodeTextString (SubMapEncoder, "HID");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].HID);
+
+    CborEncodeTextString (SubMapEncoder, "UID");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].UID);
+
+    CborEncoderCloseContainer (ArrayEncoder, SubMapEncoder);
+  }
+  CborEncoderCloseContainer (RootMapEncoderPointer, ArrayEncoder);
+  return EFI_SUCCESS;
+}
+
+RETURN_STATUS
+EFIAPI
 SetCbor (
   OUT VOID   **Buffer,
   OUT UINTN  *Size
