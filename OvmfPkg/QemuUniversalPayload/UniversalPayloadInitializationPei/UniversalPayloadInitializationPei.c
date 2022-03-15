@@ -409,6 +409,7 @@ UniversalPayloadInitialization (
   UINTN                               Pmba;
   EFI_FIRMWARE_VOLUME_HEADER          *UplFv;
   ACPI_BOARD_INFO                     *AcpiBoardInfo;
+  EFI_HOB_RESOURCE_DESCRIPTOR_DATA    TestData[2];
 
   Pmba = 0;
   DEBUG ((DEBUG_INFO, "=====================Report UPL FV=======================================\n"));

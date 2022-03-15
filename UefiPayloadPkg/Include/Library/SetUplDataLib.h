@@ -77,4 +77,11 @@ SetUplPciRootBridges (
   IN UINTN                                    Count
   );
 
+RETURN_STATUS
+EFIAPI
+SetUplResourceData (
+  IN EFI_HOB_RESOURCE_DESCRIPTOR_DATA         *Data,
+  IN UINTN                                    Count
+  );
+
 #endif

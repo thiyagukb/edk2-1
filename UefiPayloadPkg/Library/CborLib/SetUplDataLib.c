@@ -341,6 +341,40 @@ SetUplPciRootBridges (
 
 RETURN_STATUS
 EFIAPI
+SetUplResourceData (
+  IN EFI_HOB_RESOURCE_DESCRIPTOR_DATA         *Data,
+  IN UINTN                                    Count
+  )
+{
+  VOID   *ArrayEncoder;
+  VOID   *SubMapEncoder;
+  UINTN  Index;
+
+  DEBUG ((EFI_D_ERROR, "KBT Data->Owner: %g \n", &Data->Owner));
+  DEBUG ((EFI_D_ERROR, "KBT sizeof(Data[Index].Owner: %x \n", sizeof(Data[0].Owner)));
+  CborEncodeTextString (RootMapEncoderPointer, "Resource");
+  CborEncoderCreateArray (RootMapEncoderPointer, &ArrayEncoder, Count);
+  for (Index = 0; Index < Count; Index++) {
+    CborEncoderCreateSubMap (ArrayEncoder, &SubMapEncoder);
+    CborEncodeTextString (SubMapEncoder, "Owner");
+    CborEncodeByteString (SubMapEncoder, (UINT8 *)&Data[Index].Owner,sizeof(Data[Index].Owner));
+    CborEncodeTextString (SubMapEncoder, "Type");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].ResourceType);
+    CborEncodeTextString (SubMapEncoder, "Attribute");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].ResourceAttribute);
+    CborEncodeTextString (SubMapEncoder, "Base");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].PhysicalStart);
+    CborEncodeTextString (SubMapEncoder, "Length");
+    CborEncodeUint64 (SubMapEncoder, Data[Index].ResourceLength);
+    CborEncoderCloseContainer (ArrayEncoder, SubMapEncoder);
+  }
+
+  CborEncoderCloseContainer (RootMapEncoderPointer, ArrayEncoder);
+  return EFI_SUCCESS;
+}
+
+RETURN_STATUS
+EFIAPI
 SetCbor (
   OUT VOID   **Buffer,
   OUT UINTN  *Size

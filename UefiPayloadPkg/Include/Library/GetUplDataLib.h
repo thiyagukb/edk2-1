@@ -83,4 +83,11 @@ GetUplPciRootBridges (
   IN     UINTN                                    Index
   );
 
+RETURN_STATUS
+EFIAPI
+GetUplResourceData (
+  IN OUT EFI_HOB_RESOURCE_DESCRIPTOR_DATA         *Data,
+  IN OUT UINTN                                    *Count,
+  IN     UINTN                                    Index
+  );
 #endif
