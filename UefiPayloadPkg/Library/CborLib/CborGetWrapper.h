@@ -52,4 +52,28 @@ CborDecoderGetArrayLengthAndFirstElement (
   OUT    UPL_DATA_DECODER  *Map
   );
 
+RETURN_STATUS
+EFIAPI
+CborDecoderGetUint8 (
+  IN  CHAR8   *String,
+  OUT UINT8  *Result,
+  IN  VOID    *Map
+  );
+
+RETURN_STATUS
+EFIAPI
+CborDecoderGetBoolean (
+  IN  CHAR8    *String,
+  OUT BOOLEAN  *Result,
+  IN  VOID     *Map
+  );
+
+RETURN_STATUS
+EFIAPI
+CborDecoderGetBinary (
+  IN     VOID   *Value,
+  OUT    VOID   *Result,
+  IN OUT UINTN  *Size,
+  IN     VOID   *Map
+  );
 #endif

@@ -34,6 +34,37 @@ GetUplUint64 (
 
 RETURN_STATUS
 EFIAPI
+GetUplUint8 (
+  IN  CHAR8   *String,
+  OUT UINT8   *Result
+  )
+{
+  return CborDecoderGetUint8 (String, Result, NULL);
+}
+
+RETURN_STATUS
+EFIAPI
+GetUplBoolean (
+  IN  CHAR8     *String,
+  OUT BOOLEAN   *Result
+  )
+{
+  return CborDecoderGetBoolean (String, Result, NULL);
+}
+
+RETURN_STATUS
+EFIAPI
+GetUplBinary (
+  IN     CHAR8  *String,
+  IN OUT VOID  *Buffer,
+  IN OUT UINTN  *Size
+  )
+{
+  return CborDecoderGetBinary (String, Buffer, Size, NULL);
+}
+
+RETURN_STATUS
+EFIAPI
 GetUplAsciiString (
   IN     CHAR8  *String,
   IN OUT UINT8  *Buffer,
@@ -146,6 +177,18 @@ GetCbor (
   //UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  Data[2];
   UINTN                                    Count = 2;
   UINTN                                    Index = 0;
+  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO   Data1;
+  UINTN                                    Count1 = 1;
+  UINT8 buf[16];
+  UINTN size1 = 16;
+  BOOLEAN Res;
+  UINT8 Res8;
+GetUplBinary("MyGuid",&buf,&size1);
+DEBUG ((DEBUG_INFO, "KBT MyGuid: %g\n",buf));
+GetUplBoolean("UseMmio",&Res);
+DEBUG ((DEBUG_INFO, "KBT UseMmio: %x\n",Res));
+GetUplUint8("Test",&Res8);
+DEBUG ((DEBUG_INFO, "KBT Test: %x\n",Res8));
   EFI_MEMORY_DESCRIPTOR                    MemData[5];
   //GetUplExtraData (
   //  Data,
@@ -155,10 +198,11 @@ GetCbor (
   //  DEBUG ((EFI_D_ERROR, "Identifier: 0x%a \n", (CHAR8 *)&Data[1].Identifier));
   //DEBUG ((EFI_D_ERROR, "Identifier: 0x%a \n", (CHAR8 *)&Data[0].Identifier));
 
-  Count = 5;
-
+  GetUplPciRootBridges (
+    &Data1,
+    Index
   GetUplMemoryMap (MemData, &Count,Index);
-
+  );
 
   for (Index = 0; Index<5 ; Index++){
   DEBUG ((EFI_D_ERROR, "MemData: 0x%lx \n", MemData[Index].PhysicalStart));
