@@ -409,6 +409,7 @@ UniversalPayloadInitialization (
   UINTN                               Pmba;
   EFI_FIRMWARE_VOLUME_HEADER          *UplFv;
   ACPI_BOARD_INFO                     *AcpiBoardInfo;
+  EFI_HOB_RESOURCE_DESCRIPTOR_DATA    TestData[2];
 
   Pmba = 0;
   DEBUG ((DEBUG_INFO, "=====================Report UPL FV=======================================\n"));
@@ -456,7 +457,25 @@ UniversalPayloadInitialization (
   VOID   *Data;
   VOID   *Buffer;
   UINTN  Size;
+
+
+  CopyGuid(&TestData[0].Owner,&gCborBufferGuid);
+  TestData[0].PhysicalStart = 0x1234ABCD;
+  TestData[0].ResourceAttribute = 0x4567;
+  TestData[0].ResourceLength = 0xAA;
+  TestData[0].ResourceType = 0xB;
+  CopyGuid(&TestData[1].Owner,&gUefiAcpiBoardInfoGuid);
+  TestData[1].PhysicalStart = 0xBCAD4321;
+  TestData[1].ResourceAttribute = 0x7654;
+  TestData[1].ResourceLength = 0xDD;
+  TestData[1].ResourceType = 0xC;
+
+  DEBUG ((EFI_D_ERROR, "KBT TestData[0].Owner: %g \n", &TestData[0].Owner));
+  DEBUG ((EFI_D_ERROR, "KBT TestData[1].Owner: %g \n", &TestData[1].Owner));
+
+
   SetUplPciRootBridges((UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO *)RootBridge,RootBridgeCount);
+  SetUplResourceData((EFI_HOB_RESOURCE_DESCRIPTOR_DATA *)&TestData,2);
   SetCbor (&Buffer, &Size);
   Data = BuildGuidHob (&gCborBufferGuid, Size);
   CopyMem(Data, Buffer, Size);

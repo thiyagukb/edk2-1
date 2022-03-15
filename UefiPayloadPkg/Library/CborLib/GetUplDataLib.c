@@ -184,6 +184,52 @@ GetUplPciRootBridges (
   return EFI_SUCCESS;
 }
 
+
+RETURN_STATUS
+EFIAPI
+GetUplResourceData (
+  IN OUT EFI_HOB_RESOURCE_DESCRIPTOR_DATA         *Data,
+  IN OUT UINTN                                    *Count,
+  IN     UINTN                                    Index
+  )
+{
+  UINTN             Size,BinarySize, LocalIndex;
+  UPL_DATA_DECODER  SubMap;
+
+  CborDecoderGetArrayLengthAndFirstElement ("Resource", &Size, &SubMap);
+  if (*Count == 0) {
+    *Count = Size;
+    return RETURN_BUFFER_TOO_SMALL;
+  }
+
+  if (Index >= Size) {
+    return RETURN_UNSUPPORTED;
+  }
+
+  //
+  // Skip the first Index element.
+  //
+  for (LocalIndex = 0; LocalIndex < Index; LocalIndex++) {
+    CborDecoderGetArrayNextMap (&SubMap);
+  }
+
+  for (LocalIndex = 0; LocalIndex < *Count && LocalIndex < (Size -Index); LocalIndex++) {
+    if (LocalIndex != 0) {
+      CborDecoderGetArrayNextMap (&SubMap);
+    }
+    BinarySize = sizeof(Data[LocalIndex].Owner);
+    CborDecoderGetBinary ("Owner", &Data[LocalIndex].Owner,&BinarySize, &SubMap);
+    CborDecoderGetUint64 ("Type", (UINT64 *)&Data[LocalIndex].ResourceType, &SubMap);
+    CborDecoderGetUint64 ("Attribute",(UINT64 *) &Data[LocalIndex].ResourceAttribute, &SubMap);
+    CborDecoderGetUint64 ("Base", (UINT64 *)&Data[LocalIndex].PhysicalStart, &SubMap);
+    CborDecoderGetUint64 ("Length", (UINT64 *)&Data[LocalIndex].ResourceLength, &SubMap);
+
+  }
+  *Count = LocalIndex;
+
+  return EFI_SUCCESS;
+}
+
 VOID
 EFIAPI
 GetCbor (
@@ -202,6 +248,7 @@ GetCbor (
   UINTN size1 = 16;
   BOOLEAN Res;
   UINT8 Res8;
+  EFI_HOB_RESOURCE_DESCRIPTOR_DATA         TestData[2];
 GetUplBinary("MyGuid",&buf,&size1);
 DEBUG ((DEBUG_INFO, "KBT MyGuid: %g\n",buf));
 GetUplBoolean("UseMmio",&Res);
@@ -223,4 +270,17 @@ DEBUG ((DEBUG_INFO, "KBT Test: %x\n",Res8));
     Index
   );
 
+GetUplResourceData((EFI_HOB_RESOURCE_DESCRIPTOR_DATA *)TestData,&Count,Index);
+
+  DEBUG ((EFI_D_ERROR, "sizeof(EFI_HOB_RESOURCE_DESCRIPTOR_DATA): 0x%x \n", sizeof(EFI_HOB_RESOURCE_DESCRIPTOR_DATA)));
+  DEBUG ((EFI_D_ERROR, "TestData[1].Owner: %g \n", TestData[1].Owner));
+  DEBUG ((EFI_D_ERROR, "TestData[1].PhysicalStart: 0x%x \n", TestData[1].PhysicalStart));
+  DEBUG ((EFI_D_ERROR, "TestData[1].ResourceAttribute: 0x%x \n", TestData[1].ResourceAttribute));
+  DEBUG ((EFI_D_ERROR, "TestData[1].ResourceLength: 0x%x \n", TestData[1].ResourceLength));
+  DEBUG ((EFI_D_ERROR, "TestData[1].ResourceType: 0x%x \n", TestData[1].ResourceType));
+  DEBUG ((EFI_D_ERROR, "TestData[0].Owner: %g \n", &TestData[0].Owner));
+  DEBUG ((EFI_D_ERROR, "TestData[0].PhysicalStart: 0x%x \n", TestData[0].PhysicalStart));
+  DEBUG ((EFI_D_ERROR, "TestData[0].ResourceAttribute: 0x%x \n", TestData[0].ResourceAttribute));
+  DEBUG ((EFI_D_ERROR, "TestData[0].ResourceLength: 0x%x \n", TestData[0].ResourceLength));
+  DEBUG ((EFI_D_ERROR, "TestData[0].ResourceType: 0x%x \n", TestData[0].ResourceType));
 }

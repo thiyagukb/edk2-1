@@ -41,5 +41,13 @@ UINT32                                          UID;
 } UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO;
 
 
+typedef struct {
+  EFI_GUID                    Owner;
+  EFI_RESOURCE_TYPE           ResourceType;
+  EFI_RESOURCE_ATTRIBUTE_TYPE ResourceAttribute;
+  EFI_PHYSICAL_ADDRESS        PhysicalStart;
+  UINT64                      ResourceLength;
+} EFI_HOB_RESOURCE_DESCRIPTOR_DATA;
+
 #pragma pack()
 #endif
