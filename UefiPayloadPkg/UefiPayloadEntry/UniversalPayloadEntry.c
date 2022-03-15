@@ -6,6 +6,7 @@
 **/
 
 #include "UefiPayloadEntry.h"
+#include <UniversalPayload/PciRootBridges.h>
 #include <Library/GetUplDataLib.h>
 
 extern VOID  *mHobList;
