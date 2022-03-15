@@ -228,7 +228,8 @@ SetCbor (
   SetUplUint64 ("RegisterBase", PcdGet64 (PcdSerialRegisterBase));
   SetUplUint64 ("RegisterStride", PcdGet32 (PcdSerialRegisterStride));
 
-  SetUplUint64 ("UseMmio", (UINTN)PcdGetBool (PcdSerialUseMmio));
+  SetUplBoolean ("UseMmio", (UINTN)PcdGetBool (PcdSerialUseMmio));
+  SetUplUint8("Test",0xA);
   // SetUplUint64 ("BaudRate", PcdGet32 (PcdSerialBaudRate));
   UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  Extra[3];
 

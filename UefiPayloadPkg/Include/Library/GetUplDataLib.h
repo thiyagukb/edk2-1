@@ -36,6 +36,31 @@ GetUplAsciiString (
 
 RETURN_STATUS
 EFIAPI
+CborDecoderGetUint8 (
+  IN  CHAR8   *String,
+  OUT UINT8  *Result,
+  IN  VOID    *Map
+  );
+
+RETURN_STATUS
+EFIAPI
+CborDecoderGetBoolean (
+  IN  CHAR8    *String,
+  OUT BOOLEAN  *Result,
+  IN  VOID     *Map
+  );
+
+RETURN_STATUS
+EFIAPI
+CborDecoderGetBinary (
+  IN     VOID   *Value,
+  OUT    VOID   *Result,
+  IN OUT UINTN  *Size,
+  IN     VOID   *Map
+  );
+
+RETURN_STATUS
+EFIAPI
 GetUplExtraData (
   IN OUT UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  *Data,
   IN OUT UINTN                                    *Count,
