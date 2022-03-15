@@ -77,4 +77,10 @@ SetUplResourceData (
   IN UINTN                                    Count
   );
 
+RETURN_STATUS
+EFIAPI
+SetUplMemoryAllocationData (
+  IN EFI_HOB_MEMORY_ALLOCATION_DATA           *Data,
+  IN UINTN                                    Count
+  );
 #endif

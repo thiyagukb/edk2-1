@@ -82,4 +82,12 @@ GetUplResourceData (
   IN OUT UINTN                                    *Count,
   IN     UINTN                                    Index
   );
+
+RETURN_STATUS
+EFIAPI
+GetUplMemoryAllocationData (
+  IN OUT EFI_HOB_MEMORY_ALLOCATION_DATA           *Data,
+  IN OUT UINTN                                    *Count,
+  IN     UINTN                                    Index
+  );
 #endif

@@ -410,6 +410,7 @@ UniversalPayloadInitialization (
   EFI_FIRMWARE_VOLUME_HEADER          *UplFv;
   ACPI_BOARD_INFO                     *AcpiBoardInfo;
   EFI_HOB_RESOURCE_DESCRIPTOR_DATA    TestData[2];
+  EFI_HOB_MEMORY_ALLOCATION_DATA      TestDataMemalloc[2];
 
   Pmba = 0;
   DEBUG ((DEBUG_INFO, "=====================Report UPL FV=======================================\n"));
@@ -473,9 +474,18 @@ UniversalPayloadInitialization (
   DEBUG ((EFI_D_ERROR, "KBT TestData[0].Owner: %g \n", &TestData[0].Owner));
   DEBUG ((EFI_D_ERROR, "KBT TestData[1].Owner: %g \n", &TestData[1].Owner));
 
+  CopyGuid(&TestDataMemalloc[0].Name,&gUniversalPayloadPciRootBridgeInfoGuid);
+  TestDataMemalloc[0].MemoryBaseAddress = 0x98765432;
+  TestDataMemalloc[0].MemoryLength = 0x9512;
+  TestDataMemalloc[0].MemoryType = 0xEFEF;
+  CopyGuid(&TestDataMemalloc[1].Name,&gUniversalPayloadSerialPortInfoGuid);
+  TestDataMemalloc[1].MemoryBaseAddress = 0x45612378;
+  TestDataMemalloc[1].MemoryLength = 0x7531;
+  TestDataMemalloc[1].MemoryType = 0xAABB;
 
   SetUplPciRootBridges((UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO *)RootBridge,RootBridgeCount);
   SetUplResourceData((EFI_HOB_RESOURCE_DESCRIPTOR_DATA *)&TestData,2);
+  SetUplMemoryAllocationData((EFI_HOB_MEMORY_ALLOCATION_DATA *)&TestDataMemalloc,2);
   SetCbor (&Buffer, &Size);
   Data = BuildGuidHob (&gCborBufferGuid, Size);
   CopyMem(Data, Buffer, Size);
