@@ -405,11 +405,12 @@ UniversalPayloadInitialization (
   )
 {
   UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO  *Serial;
+  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES  *PciRootBridgeInfo;
   UINT16                              HostBridgeDevId;
   UINTN                               Pmba;
   EFI_FIRMWARE_VOLUME_HEADER          *UplFv;
   ACPI_BOARD_INFO                     *AcpiBoardInfo;
-  EFI_HOB_RESOURCE_DESCRIPTOR_DATA    TestData[2];
+
 
   Pmba = 0;
   DEBUG ((DEBUG_INFO, "=====================Report UPL FV=======================================\n"));
@@ -470,13 +471,6 @@ UniversalPayloadInitialization (
   PciRootBridgeInfo->ResourceAssigned = FALSE;
   DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%04x\n",  __FUNCTION__, PciRootBridgeInfo->ResourceAssigned));
   DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%x\n",  __FUNCTION__, (UINTN)PciRootBridgeInfo->RootBridge[0].Bus.Limit));
-  //VOID   *Data;
-  //VOID   *Buffer;
-  //UINTN  Size;
-  SetUplPciRootBridges((UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO *)RootBridge,RootBridgeCount);
-  //SetCbor (&Buffer, &Size);
-  //Data = BuildGuidHob (&gCborBufferGuid, Size);
-  //CopyMem(Data, Buffer, Size);
-
+  
   return EFI_SUCCESS;
 }
