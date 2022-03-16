@@ -727,11 +727,11 @@ PrintHob (
       }
     }
 
-    if (Index == ARRAY_SIZE (mHobHandles)) {
-      DEBUG ((DEBUG_INFO, "HOB[%d]: Type = %d, Offset = 0x%p, Length = 0x%x\n", Count, Hob.Header->HobType, (Hob.Raw - (UINT8 *)HobStart), Hob.Header->HobLength));
-      DEBUG ((DEBUG_INFO, "   Unkown Hob type\n"));
-      PrintHex (Hob.Raw, Hob.Header->HobLength);
-    }
+    //if (Index == ARRAY_SIZE (mHobHandles)) {
+    //  DEBUG ((DEBUG_INFO, "HOB[%d]: Type = %d, Offset = 0x%p, Length = 0x%x\n", Count, Hob.Header->HobType, (Hob.Raw - (UINT8 *)HobStart), Hob.Header->HobLength));
+    //  DEBUG ((DEBUG_INFO, "   Unkown Hob type\n"));
+    //  PrintHex (Hob.Raw, Hob.Header->HobLength);
+    //}
 
     Count++;
     Hob.Raw = GET_NEXT_HOB (Hob);

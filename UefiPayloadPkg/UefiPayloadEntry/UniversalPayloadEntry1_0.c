@@ -136,6 +136,8 @@ Spec1_0Entry (
   EFI_PEI_HOB_POINTERS  Hob;
 
   Hob.Raw = (VOID *)(UINTN)TempData;
+
+  PrintHob(Hob.Raw);
   //
   // Create an empty FvHob for the DXE FV that contains DXE core.
   //
