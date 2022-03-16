@@ -35,6 +35,13 @@ GetUplUint8 (
 
 RETURN_STATUS
 EFIAPI
+GetUplBoolean (
+  IN  CHAR8     *String,
+  OUT BOOLEAN   *Result
+  );
+
+RETURN_STATUS
+EFIAPI
 GetUplAsciiString (
   IN     CHAR8  *String,
   IN OUT UINT8  *Buffer,
@@ -69,7 +76,7 @@ CborDecoderGetBinary (
 RETURN_STATUS
 EFIAPI
 GetUplExtraData (
-  IN OUT UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  *Data,
+  IN OUT UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY  *Data,
   IN OUT UINTN                                    *Count,
   IN     UINTN                                    Index
   );
@@ -85,7 +92,7 @@ GetUplMemoryMap (
 RETURN_STATUS
 EFIAPI
 GetUplPciRootBridges (
-  IN OUT UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO  *Data,
+  IN OUT UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE  *Data,
   IN OUT UINTN                                    *Count,
   IN     UINTN                                    Index
   );

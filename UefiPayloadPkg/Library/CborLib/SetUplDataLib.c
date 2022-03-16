@@ -154,7 +154,7 @@ LockUplAndGetBuffer (
 RETURN_STATUS
 EFIAPI
 SetUplExtraData (
-  IN UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  *Data,
+  IN UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY  *Data,
   IN UINTN                                    Count
   )
 {
@@ -240,7 +240,7 @@ PrintHex1 (
 RETURN_STATUS
 EFIAPI
 SetUplPciRootBridges (
-  IN UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO  *Data,
+  IN UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE  *Data,
   IN UINTN                                    Count
   )
 {
@@ -428,7 +428,7 @@ SetCbor (
   SetUplBoolean ("UseMmio", (UINTN)PcdGetBool (PcdSerialUseMmio));
   SetUplUint8("Test",0xA);
   // SetUplUint64 ("BaudRate", PcdGet32 (PcdSerialBaudRate));
-  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  Extra[3];
+  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY  Extra[3];
 
   Extra[0].Base = 12;
   char  idnt[] = "hello\0";

@@ -77,7 +77,7 @@ GetUplAsciiString (
 RETURN_STATUS
 EFIAPI
 GetUplExtraData (
-  IN OUT UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  *Data,
+  IN OUT UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY  *Data,
   IN OUT UINTN                                    *Count,
   IN     UINTN                                    Index
   )
@@ -168,7 +168,7 @@ GetUplMemoryMap (
 RETURN_STATUS
 EFIAPI
 GetUplPciRootBridges (
-  IN OUT UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO  *Data,
+  IN OUT UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE  *Data,
   IN OUT UINTN                                    *Count,
   IN     UINTN                                    Index
   )

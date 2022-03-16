@@ -47,7 +47,7 @@ PeiLoadFileLoadPayload (
 {
   EFI_STATUS                               Status;
   VOID                                     *Elf;
-  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  *ExtraData;
+  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY  *ExtraData;
   ELF_IMAGE_CONTEXT                        Context;
   UNIVERSAL_PAYLOAD_INFO_HEADER            *PldInfo;
   UINT32                                   Index;
@@ -111,7 +111,7 @@ PeiLoadFileLoadPayload (
   //
   // Report the additional PLD sections through HOB.
   //
-  Length    = ExtraDataCount * sizeof (UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA);
+  Length    = ExtraDataCount * sizeof (UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY);
   ExtraData = AllocatePool (Length);
 
   if (ExtraDataCount != 0) {

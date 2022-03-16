@@ -34,14 +34,12 @@ SetUplDataBasedHob (
   UNIVERSAL_PAYLOAD_ACPI_TABLE  *AcpiTable;
   EFI_HOB_CPU                   *CpuHob;
 
-
-
   GuidHob      = GetFirstGuidHob (&gUniversalPayloadMemoryMapGuid);
   MemoryMapHob = (UNIVERSAL_PAYLOAD_MEMORY_MAP *)GET_GUID_HOB_DATA (GuidHob);
   Status       = SetUplMemoryMap (MemoryMapHob->MemoryMap, MemoryMapHob->Count);
 
-  GuidHob = GetFirstGuidHob (&gUniversalPayloadAcpiTableGuid);
-  AcpiTable     = (UNIVERSAL_PAYLOAD_ACPI_TABLE *)GET_GUID_HOB_DATA (GuidHob);
+  GuidHob   = GetFirstGuidHob (&gUniversalPayloadAcpiTableGuid);
+  AcpiTable = (UNIVERSAL_PAYLOAD_ACPI_TABLE *)GET_GUID_HOB_DATA (GuidHob);
   SetUplUint64 ("AcpiTableRsdp", (UINT64)AcpiTable->Rsdp);
 
   CpuHob = GetFirstHob (EFI_HOB_TYPE_CPU);
@@ -62,12 +60,12 @@ PrepareForUniversalPayload (
   UINTN                 Size;
   EFI_PEI_HOB_POINTERS  Hob;
 
-
   DEBUG ((DEBUG_INFO, "Begin to do necessary preparation for Universal Payload\n"));
   Status = BuildMemoryMap ();
   if (RETURN_ERROR (Status)) {
     return NULL;
   }
+
   SetUplDataBasedHob ();
 
   Hob.Raw = (VOID *)GetHobList ();
@@ -78,15 +76,12 @@ PrepareForUniversalPayload (
   //
   while (!END_OF_HOB_LIST (Hob)) {
     Hob.Raw = GET_NEXT_HOB (Hob);
-    if ((Hob.Header->HobType == EFI_HOB_TYPE_HANDOFF) || (Hob.Header->HobType == EFI_HOB_TYPE_END_OF_HOB_LIST))
-    {
+    if ((Hob.Header->HobType == EFI_HOB_TYPE_HANDOFF) || (Hob.Header->HobType == EFI_HOB_TYPE_END_OF_HOB_LIST)) {
       continue;
     }
 
     if (Hob.Header->HobType == EFI_HOB_TYPE_GUID_EXTENSION) {
-      if (CompareGuid (&Hob.Guid->Name, &gUniversalPayloadPciRootBridgeInfoGuid) ||
-          CompareGuid (&Hob.Guid->Name, &gPcdDataBaseHobGuid))
-      {
+      if (CompareGuid (&Hob.Guid->Name, &gPcdDataBaseHobGuid)) {
         continue;
       }
     }

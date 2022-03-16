@@ -405,37 +405,16 @@ UniversalPayloadInitialization (
   )
 {
 
-  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES  *PciRootBridgeInfo;
-  UINT16                              HostBridgeDevId;
-  UINTN                               Pmba;
+
+
   EFI_FIRMWARE_VOLUME_HEADER          *UplFv;
-  //ACPI_BOARD_INFO                     *AcpiBoardInfo;
 
-
-  Pmba = 0;
   DEBUG ((DEBUG_INFO, "=====================Report UPL FV=======================================\n"));
   UplFv = (EFI_FIRMWARE_VOLUME_HEADER *) PcdGet32 (PcdOvmfPldFvBase);
   ASSERT (UplFv->FvLength == PcdGet32 (PcdOvmfPldFvSize));
   PeiServicesInstallFvInfoPpi (&UplFv->FileSystemGuid, UplFv, (UINT32) UplFv->FvLength, NULL, NULL);
 
   DEBUG ((DEBUG_INFO, "=====================Build UPL HOBs=======================================\n"));
-  //
-  // Query Host Bridge DID to determine platform type
-  //
-  HostBridgeDevId = PcdGet16 (PcdOvmfHostBridgePciDevId);
-  switch (HostBridgeDevId) {
-    case INTEL_82441_DEVICE_ID:
-      Pmba = POWER_MGMT_REGISTER_PIIX4 (PIIX4_PMBA);
-      break;
-    case INTEL_Q35_MCH_DEVICE_ID:
-      Pmba = POWER_MGMT_REGISTER_Q35 (ICH9_PMBASE);
-      break;
-    default:
-      DEBUG ((DEBUG_ERROR, "%a: Unknown Host Bridge Device ID: 0x%04x\n",
-        __FUNCTION__, HostBridgeDevId));
-      ASSERT (FALSE);
-  }
-
 
 
   SetUplUint64 ("SerialPortBaudRate", (UINT64)PcdGet32 (PcdSerialBaudRate));
@@ -443,27 +422,11 @@ UniversalPayloadInitialization (
   SetUplUint64 ("SerialPortRegisterBase", (UINT64)PcdGet64 (PcdSerialRegisterBase));
   SetUplUint64 ("SerialPortRegisterStride", (UINT64)PcdGet32 (PcdSerialRegisterStride));
 
-
-
-  //AcpiBoardInfo = BuildGuidHob (&gUefiAcpiBoardInfoGuid, sizeof (ACPI_BOARD_INFO));
-  //AcpiBoardInfo->PcieBaseAddress = PcdGet64 (PcdPciExpressBaseAddress);
-  //AcpiBoardInfo->PcieBaseSize = SIZE_256MB;
-//
-  //AcpiBoardInfo->PmTimerRegBase = (PciRead32 (Pmba) & ~PMBA_RTE) + ACPI_TIMER_OFFSET;
-
   UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE * RootBridge;
   UINTN         RootBridgeCount;
   RootBridge = PeiPciHostBridgeGetRootBridges(&RootBridgeCount);
-
-  PciRootBridgeInfo = BuildGuidHob (&gUniversalPayloadPciRootBridgeInfoGuid, sizeof (PciRootBridgeInfo) + sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
-  CopyMem(PciRootBridgeInfo->RootBridge, RootBridge, sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
-  PciRootBridgeInfo->Count = (UINT8)RootBridgeCount;
-  PciRootBridgeInfo->Header.Length = sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE);
-  PciRootBridgeInfo->Header.Revision =  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES_REVISION;
-  DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->Count: 0x%04x\n",  __FUNCTION__, RootBridgeCount));
-  PciRootBridgeInfo->ResourceAssigned = FALSE;
-  DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%04x\n",  __FUNCTION__, PciRootBridgeInfo->ResourceAssigned));
-  DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%x\n",  __FUNCTION__, (UINTN)PciRootBridgeInfo->RootBridge[0].Bus.Limit));
-
+  SetUplPciRootBridges (RootBridge, RootBridgeCount);
+  SetUplBoolean ("RootBridgeResourceAssigned", FALSE);
+  
   return EFI_SUCCESS;
 }

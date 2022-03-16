@@ -59,7 +59,7 @@ LockUplAndGetBuffer (
 RETURN_STATUS
 EFIAPI
 SetUplExtraData (
-  IN UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  *Data,
+  IN UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY  *Data,
   IN UINTN                                    Count
   );
 
@@ -73,7 +73,7 @@ SetUplMemoryMap (
 RETURN_STATUS
 EFIAPI
 SetUplPciRootBridges (
-  IN UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_INFO  *Data,
+  IN UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE  *Data,
   IN UINTN                                    Count
   );
 

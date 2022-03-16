@@ -160,13 +160,13 @@ Spec1_0Entry (
   //
   // Get DXE FV location
   //
-  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  *ExtraData;
+  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY  *ExtraData;
   UINTN                                    Count;
   UINTN                                    Index;
 
   Count = 0;
   GetUplExtraData (NULL, &Count, 0);
-  ExtraData = AllocatePool (Count * sizeof (UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA));
+  ExtraData = AllocatePool (Count * sizeof (UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY));
    
   GetUplExtraData (ExtraData, &Count, 0);
   DEBUG ((DEBUG_INFO, "GetUplExtraData... %d\n", Count));
@@ -204,6 +204,28 @@ Spec1_0Entry (
   GetUplUint8 ("MemorySpace", &SizeOfMemorySpace);
   GetUplUint8 ("IoSpace", &SizeOfIoSpace);
   BuildCpuHob(SizeOfMemorySpace, SizeOfIoSpace);
+
+  //
+  // Build gUniversalPayloadPciRootBridgeInfoGuid Hob
+  //
+  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE   * RootBridge;
+  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES  *PciRootBridgeInfo;
+  BOOLEAN                             ResourceAssigned;
+  Count = 0;
+  GetUplPciRootBridges (NULL, &Count, 0);
+  RootBridge = AllocatePool (Count * sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
+   
+  GetUplPciRootBridges (RootBridge, &Count, 0);
+  DEBUG ((DEBUG_INFO, "GetUplPciRootBridges... %d\n", Count));
+
+  PciRootBridgeInfo = BuildGuidHob (&gUniversalPayloadPciRootBridgeInfoGuid, sizeof (PciRootBridgeInfo) + sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
+  CopyMem(PciRootBridgeInfo->RootBridge, RootBridge, sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
+  PciRootBridgeInfo->Count = (UINT8)Count;
+  PciRootBridgeInfo->Header.Length = Count * sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE) + sizeof(UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES);
+  PciRootBridgeInfo->Header.Revision =  UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES_REVISION;
+
+  GetUplBoolean ("RootBridgeResourceAssigned", &ResourceAssigned);
+  PciRootBridgeInfo->ResourceAssigned = ResourceAssigned;
 
   //
   // Update DXE FV information to first fv hob in the hob list, which
