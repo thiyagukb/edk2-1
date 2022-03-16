@@ -404,12 +404,12 @@ UniversalPayloadInitialization (
   IN CONST EFI_PEI_SERVICES     **PeiServices
   )
 {
-  UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO  *Serial;
+
   UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGES  *PciRootBridgeInfo;
   UINT16                              HostBridgeDevId;
   UINTN                               Pmba;
   EFI_FIRMWARE_VOLUME_HEADER          *UplFv;
-  ACPI_BOARD_INFO                     *AcpiBoardInfo;
+  //ACPI_BOARD_INFO                     *AcpiBoardInfo;
 
 
   Pmba = 0;
@@ -437,13 +437,6 @@ UniversalPayloadInitialization (
   }
 
 
-  Serial = BuildGuidHob (&gUniversalPayloadSerialPortInfoGuid, sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO));
-  Serial->BaudRate = PcdGet32 (PcdSerialBaudRate);
-  Serial->RegisterBase = PcdGet64 (PcdSerialRegisterBase);
-  Serial->RegisterStride = (UINT8) PcdGet32 (PcdSerialRegisterStride);
-  Serial->Header.Revision = UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO_REVISION;
-  Serial->Header.Length = sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO);
-  Serial->UseMmio = PcdGetBool (PcdSerialUseMmio);
 
   SetUplUint64 ("SerialPortBaudRate", (UINT64)PcdGet32 (PcdSerialBaudRate));
   SetUplUint64 ("SerialPortUseMmio", (UINT64)PcdGetBool (PcdSerialUseMmio));
@@ -452,11 +445,11 @@ UniversalPayloadInitialization (
 
 
 
-  AcpiBoardInfo = BuildGuidHob (&gUefiAcpiBoardInfoGuid, sizeof (ACPI_BOARD_INFO));
-  AcpiBoardInfo->PcieBaseAddress = PcdGet64 (PcdPciExpressBaseAddress);
-  AcpiBoardInfo->PcieBaseSize = SIZE_256MB;
-
-  AcpiBoardInfo->PmTimerRegBase = (PciRead32 (Pmba) & ~PMBA_RTE) + ACPI_TIMER_OFFSET;
+  //AcpiBoardInfo = BuildGuidHob (&gUefiAcpiBoardInfoGuid, sizeof (ACPI_BOARD_INFO));
+  //AcpiBoardInfo->PcieBaseAddress = PcdGet64 (PcdPciExpressBaseAddress);
+  //AcpiBoardInfo->PcieBaseSize = SIZE_256MB;
+//
+  //AcpiBoardInfo->PmTimerRegBase = (PciRead32 (Pmba) & ~PMBA_RTE) + ACPI_TIMER_OFFSET;
 
   UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE * RootBridge;
   UINTN         RootBridgeCount;
@@ -471,6 +464,6 @@ UniversalPayloadInitialization (
   PciRootBridgeInfo->ResourceAssigned = FALSE;
   DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%04x\n",  __FUNCTION__, PciRootBridgeInfo->ResourceAssigned));
   DEBUG ((DEBUG_ERROR, "%a: PciRootBridgeInfo->RootBridge[0].ResourceAssigned: 0x%x\n",  __FUNCTION__, (UINTN)PciRootBridgeInfo->RootBridge[0].Bus.Limit));
-  
+
   return EFI_SUCCESS;
 }
