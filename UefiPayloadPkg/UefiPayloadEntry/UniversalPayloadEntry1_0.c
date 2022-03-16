@@ -194,6 +194,17 @@ Spec1_0Entry (
   AcpiBoardInfo = BuildHobFromAcpi (Rsdp);
   ASSERT (AcpiBoardInfo != NULL);
 
+
+
+  //
+  // Build CPU Hob
+  //
+  UINT8  SizeOfMemorySpace;
+  UINT8  SizeOfIoSpace;
+  GetUplUint8 ("MemorySpace", &SizeOfMemorySpace);
+  GetUplUint8 ("IoSpace", &SizeOfIoSpace);
+  BuildCpuHob(SizeOfMemorySpace, SizeOfIoSpace);
+
   //
   // Update DXE FV information to first fv hob in the hob list, which
   // is the empty FvHob created before.

@@ -32,8 +32,9 @@ SetUplDataBasedHob (
   UINT8                         *GuidHob;
   RETURN_STATUS                 Status;
   UNIVERSAL_PAYLOAD_ACPI_TABLE  *AcpiTable;
+  EFI_HOB_CPU                   *CpuHob;
 
-  // UNIVERSAL_PAYLOAD_EXTRA_DATA  *ExtraData;
+
 
   GuidHob      = GetFirstGuidHob (&gUniversalPayloadMemoryMapGuid);
   MemoryMapHob = (UNIVERSAL_PAYLOAD_MEMORY_MAP *)GET_GUID_HOB_DATA (GuidHob);
@@ -42,7 +43,11 @@ SetUplDataBasedHob (
   GuidHob = GetFirstGuidHob (&gUniversalPayloadAcpiTableGuid);
   AcpiTable     = (UNIVERSAL_PAYLOAD_ACPI_TABLE *)GET_GUID_HOB_DATA (GuidHob);
   SetUplUint64 ("AcpiTableRsdp", (UINT64)AcpiTable->Rsdp);
-  // GuidHob = GetFirstGuidHob (&gUniversalPayloadExtraDataGuid);
+
+  CpuHob = GetFirstHob (EFI_HOB_TYPE_CPU);
+  SetUplUint8 ("MemorySpace", CpuHob->SizeOfMemorySpace);
+  SetUplUint8 ("IoSpace", CpuHob->SizeOfIoSpace);
+
   return Status;
 }
 
@@ -73,7 +78,7 @@ PrepareForUniversalPayload (
   //
   while (!END_OF_HOB_LIST (Hob)) {
     Hob.Raw = GET_NEXT_HOB (Hob);
-    if ((Hob.Header->HobType == EFI_HOB_TYPE_HANDOFF) || (Hob.Header->HobType == EFI_HOB_TYPE_END_OF_HOB_LIST) || (Hob.Header->HobType ==  EFI_HOB_TYPE_CPU))
+    if ((Hob.Header->HobType == EFI_HOB_TYPE_HANDOFF) || (Hob.Header->HobType == EFI_HOB_TYPE_END_OF_HOB_LIST))
     {
       continue;
     }

@@ -28,6 +28,13 @@ GetUplUint64 (
 
 RETURN_STATUS
 EFIAPI
+GetUplUint8 (
+  IN  CHAR8   *String,
+  OUT UINT8   *Result
+  );
+
+RETURN_STATUS
+EFIAPI
 GetUplAsciiString (
   IN     CHAR8  *String,
   IN OUT UINT8  *Buffer,
