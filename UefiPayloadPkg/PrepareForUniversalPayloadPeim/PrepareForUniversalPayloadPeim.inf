@@ -42,6 +42,17 @@
 [Guids]
   gUniversalPayloadMemoryMapGuid
   gCborBufferGuid
+  gUniversalPayloadAcpiTableGuid
+  gUniversalPayloadSerialPortInfoGuid
+  gUniversalPayloadSmbios3TableGuid
+  gUniversalPayloadSmbiosTableGuid
+  gUefiAcpiBoardInfoGuid
+  gUniversalPayloadPciRootBridgeInfoGuid
+  gEfiMemoryTypeInformationGuid
+  gUniversalPayloadExtraDataGuid
+  gEdkiiBootManagerMenuFileGuid
+
+  gPcdDataBaseHobGuid
 
 [Ppis]
   gEdkiiPrepareForUniversalPayloadPpiGuid                 ## PRODUCES

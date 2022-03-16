@@ -110,7 +110,6 @@ RETURN_STATUS
 CreateHobsBasedOnMemoryMap1_0 (
   );
 
-
 EFI_STATUS
 EFIAPI
 Spec1_0Entry (
@@ -128,7 +127,7 @@ Spec1_0Entry (
   DEBUG ((DEBUG_INFO, "Entering Universal Payload...\n"));
   DEBUG ((DEBUG_INFO, "sizeof(UINTN) = 0x%x\n", sizeof (UINTN)));
   InitializeFloatingPointUnits ();
-  CreateHobsBasedOnMemoryMap1_0();
+  CreateHobsBasedOnMemoryMap1_0 ();
   UINT64  TempData;
 
   Status = GetUplUint64 ("HobList", &TempData);
@@ -153,33 +152,47 @@ Spec1_0Entry (
     Hob.Raw = GET_NEXT_HOB (Hob);
   }
 
-  UNIVERSAL_PAYLOAD_EXTRA_DATA  *ExtraData;
-  UINT8                         *GuidHob;
+
   EFI_HOB_FIRMWARE_VOLUME       *FvHob;
-  UNIVERSAL_PAYLOAD_ACPI_TABLE  *AcpiTable;
+
   ACPI_BOARD_INFO               *AcpiBoardInfo;
 
   //
   // Get DXE FV location
   //
-  GuidHob = GetFirstGuidHob (&gUniversalPayloadExtraDataGuid);
-  ASSERT (GuidHob != NULL);
-  ExtraData = (UNIVERSAL_PAYLOAD_EXTRA_DATA *)GET_GUID_HOB_DATA (GuidHob);
-  ASSERT (ExtraData->Count == 1);
-  ASSERT (AsciiStrCmp (ExtraData->Entry[0].Identifier, "uefi_fv") == 0);
+  UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA  *ExtraData;
+  UINTN                                    Count;
+  UINTN                                    Index;
 
-  *DxeFv = (EFI_FIRMWARE_VOLUME_HEADER *)(UINTN)ExtraData->Entry[0].Base;
-  ASSERT ((*DxeFv)->FvLength == ExtraData->Entry[0].Size);
+  Count = 0;
+  GetUplExtraData (NULL, &Count, 0);
+  ExtraData = AllocatePool (Count * sizeof (UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY_DATA));
+   
+  GetUplExtraData (ExtraData, &Count, 0);
+  DEBUG ((DEBUG_INFO, "GetUplExtraData... %d\n", Count));
+  for (Index = 0; Index < Count; Index++) {
+    DEBUG ((DEBUG_INFO, "GetUplExtraData... %a\n", (UINT8*)ExtraData[Index].Identifier));
+    
+    if (AsciiStrCmp (ExtraData[Index].Identifier, "uefi_fv") == 0) {
+      *DxeFv = (EFI_FIRMWARE_VOLUME_HEADER *)(UINTN)ExtraData[Index].Base;
+      ASSERT ((*DxeFv)->FvLength == ExtraData[Index].Size);
+      break;
+    }
+  }
+
+  if (Index == Count) {
+    DEBUG ((DEBUG_INFO, "Index == Count... \n" ));
+    return EFI_NOT_FOUND;
+  }
+
 
   //
   // Create guid hob for acpi board information
   //
-  GuidHob = GetFirstGuidHob (&gUniversalPayloadAcpiTableGuid);
-  if (GuidHob != NULL) {
-    AcpiTable     = (UNIVERSAL_PAYLOAD_ACPI_TABLE *)GET_GUID_HOB_DATA (GuidHob);
-    AcpiBoardInfo = BuildHobFromAcpi ((UINT64)AcpiTable->Rsdp);
-    ASSERT (AcpiBoardInfo != NULL);
-  }
+  UINT64 Rsdp;
+  GetUplUint64("AcpiTableRsdp", &Rsdp);
+  AcpiBoardInfo = BuildHobFromAcpi (Rsdp);
+  ASSERT (AcpiBoardInfo != NULL);
 
   //
   // Update DXE FV information to first fv hob in the hob list, which
