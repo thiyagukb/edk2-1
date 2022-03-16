@@ -56,7 +56,7 @@ PrepareForUniversalPayload (
   LockUplAndGetBuffer (&Buffer, &Size);
   Data = BuildGuidHob (&gCborBufferGuid, Size);
   CopyMem(Data, Buffer, Size);
-
+DEBUG ((DEBUG_INFO, "HobStart = 0x%x\n", (UINT32) HobStart));
 
   /*
   Hob.Raw = (VOID *)GetHobList ();
@@ -79,7 +79,7 @@ PrepareForUniversalPayload (
   }
   */
 
-  return HobStart;
+  return Buffer;
 }
 
 EDKII_PREPARE_FOR_UNIVERSAL_PAYLOAD_PPI  gPrepareForUniveralPayloadPpi = {

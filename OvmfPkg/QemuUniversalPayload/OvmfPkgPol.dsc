@@ -719,7 +719,6 @@ gEfiMdePkgTokenSpaceGuid.PcdConfidentialComputingGuestAttr|0
   OvmfPkg/QemuUniversalPayload/UniversalPayloadInitializationPei/UniversalPayloadInitializationPei.inf {
     <LibraryClasses>
       NULL|OvmfPkg/QemuUniversalPayload/QemuPayloadPcdListLibNull/QemuPayloadPcdListLibNull.inf
-      NULL|UefiPayloadPkg/Library/CborLib/SetUplDataLib.inf
   }
 !endif
   OvmfPkg/PlatformPei/PlatformPei.inf

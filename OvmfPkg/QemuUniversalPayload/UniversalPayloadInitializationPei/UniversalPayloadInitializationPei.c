@@ -19,6 +19,7 @@
 #include <Library/QemuFwCfgLib.h>
 #include <OvmfPlatforms.h>
 #include <Library/BaseMemoryLib.h>
+#include <Library/SetUplDataLib.h>
 
 STATIC UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE_APERTURE mNonExistAperture = { MAX_UINT64, 0 };
 
@@ -442,6 +443,13 @@ UniversalPayloadInitialization (
   Serial->Header.Revision = UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO_REVISION;
   Serial->Header.Length = sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO);
   Serial->UseMmio = PcdGetBool (PcdSerialUseMmio);
+
+  SetUplUint64 ("SerialPortBaudRate", (UINT64)PcdGet32 (PcdSerialBaudRate));
+  SetUplUint64 ("SerialPortUseMmio", (UINT64)PcdGetBool (PcdSerialUseMmio));
+  SetUplUint64 ("SerialPortRegisterBase", (UINT64)PcdGet64 (PcdSerialRegisterBase));
+  SetUplUint64 ("SerialPortRegisterStride", (UINT64)PcdGet32 (PcdSerialRegisterStride));
+
+
 
   AcpiBoardInfo = BuildGuidHob (&gUefiAcpiBoardInfoGuid, sizeof (ACPI_BOARD_INFO));
   AcpiBoardInfo->PcieBaseAddress = PcdGet64 (PcdPciExpressBaseAddress);

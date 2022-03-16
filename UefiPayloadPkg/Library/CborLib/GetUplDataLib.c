@@ -165,4 +165,9 @@ GetCbor (
   DEBUG ((EFI_D_ERROR, "MemData: 0x%lx \n", MemData[Index].NumberOfPages));
   }
 
+  UINT64 TempData;
+
+  GetUplUint64("SerialPortBaudRate", &TempData);
+  DEBUG ((EFI_D_ERROR, "SerialPortBaudRate: 0x%lx \n", TempData));
+
 }
