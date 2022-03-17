@@ -13,22 +13,19 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <UniversalPayload/PciRootBridges.h>
 #include <UniversalPayload/ExtraData.h>
 
-#pragma pack(1)
-
 typedef struct {
   EFI_GUID                    Owner;
   EFI_RESOURCE_TYPE           ResourceType;
   EFI_RESOURCE_ATTRIBUTE_TYPE ResourceAttribute;
   EFI_PHYSICAL_ADDRESS        PhysicalStart;
   UINT64                      ResourceLength;
-} EFI_HOB_RESOURCE_DESCRIPTOR_DATA;
+} UNIVERSAL_PAYLOAD_RESOURCE_DESCRIPTOR;
 
 typedef struct {
   EFI_GUID                Name;
   EFI_PHYSICAL_ADDRESS    MemoryBaseAddress;
   UINT64                  MemoryLength;
   EFI_MEMORY_TYPE         MemoryType;
-} EFI_HOB_MEMORY_ALLOCATION_DATA;
+} UNIVERSAL_PAYLOAD_MEMORY_ALLOCATION;
 
-#pragma pack()
 #endif

@@ -80,14 +80,14 @@ SetUplPciRootBridges (
 RETURN_STATUS
 EFIAPI
 SetUplResourceData (
-  IN EFI_HOB_RESOURCE_DESCRIPTOR_DATA         *Data,
+  IN UNIVERSAL_PAYLOAD_RESOURCE_DESCRIPTOR         *Data,
   IN UINTN                                    Count
   );
 
 RETURN_STATUS
 EFIAPI
 SetUplMemoryAllocationData (
-  IN EFI_HOB_MEMORY_ALLOCATION_DATA           *Data,
+  IN UNIVERSAL_PAYLOAD_MEMORY_ALLOCATION           *Data,
   IN UINTN                                    Count
   );
 #endif

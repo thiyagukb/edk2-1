@@ -86,7 +86,9 @@ InitHobList (
   Serial->BaudRate = (UINT32)TempData;
   GetUplUint64 ("SerialPortRegisterBase", &TempData);
   Serial->RegisterBase = (UINT64)TempData;
-  GetUplUint64 ("SerialPortRegisterStride", &TempData);
+
+  TempData = 0;
+  GetUplUint8 ("SerialPortRegisterStride", (UINT8*)&TempData);
   Serial->RegisterStride  = (UINT8)TempData;
   Serial->Header.Revision = UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO_REVISION;
   Serial->Header.Length   = sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO);

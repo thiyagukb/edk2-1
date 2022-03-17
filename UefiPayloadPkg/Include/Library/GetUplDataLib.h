@@ -100,7 +100,7 @@ GetUplPciRootBridges (
 RETURN_STATUS
 EFIAPI
 GetUplResourceData (
-  IN OUT EFI_HOB_RESOURCE_DESCRIPTOR_DATA         *Data,
+  IN OUT UNIVERSAL_PAYLOAD_RESOURCE_DESCRIPTOR         *Data,
   IN OUT UINTN                                    *Count,
   IN     UINTN                                    Index
   );
@@ -108,7 +108,7 @@ GetUplResourceData (
 RETURN_STATUS
 EFIAPI
 GetUplMemoryAllocationData (
-  IN OUT EFI_HOB_MEMORY_ALLOCATION_DATA           *Data,
+  IN OUT UNIVERSAL_PAYLOAD_MEMORY_ALLOCATION           *Data,
   IN OUT UINTN                                    *Count,
   IN     UINTN                                    Index
   );
