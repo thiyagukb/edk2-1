@@ -11,7 +11,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 
 
-VOID
+RETURN_STATUS
+EFIAPI
 CborEncoderInit (
   OUT VOID  **RootEncoderPointer,
   OUT VOID  **RootMapEncoderPointer,

@@ -9,11 +9,11 @@
 UPL_DATA_DECODER  RootValue;
 CborParser        Parser;
 
-#define CHECK_CBOR_ERROR(Expression)      \
-    do {                                  \
-      if (Expression != CborNoError) {    \
-        return RETURN_UNSUPPORTED;        \
-      }                                   \
+#define CHECK_CBOR_DECODE_ERROR(Expression)      \
+    do {                                         \
+      if (Expression != CborNoError) {           \
+        return RETURN_UNSUPPORTED;               \
+      }                                          \
     } while (FALSE)
 
 RETURN_STATUS
@@ -23,7 +23,7 @@ CborDecoderGetRootMap (
   IN UINTN  Size
   )
 {
-  CHECK_CBOR_ERROR (cbor_parser_init (Buffer, Size, 0, &Parser, &RootValue));
+  CHECK_CBOR_DECODE_ERROR (cbor_parser_init (Buffer, Size, 0, &Parser, &RootValue));
 
   return RETURN_SUCCESS;
 }
@@ -42,7 +42,7 @@ CborDecoderGetUint64 (
     Map = &RootValue;
   }
 
-  CHECK_CBOR_ERROR (cbor_value_map_find_value (Map, String, &Element));
+  CHECK_CBOR_DECODE_ERROR (cbor_value_map_find_value (Map, String, &Element));
   if (cbor_value_is_valid (&Element) == FALSE) {
     return RETURN_NOT_FOUND;
   }
@@ -51,7 +51,7 @@ CborDecoderGetUint64 (
     return RETURN_INVALID_PARAMETER;
   }
 
-  CHECK_CBOR_ERROR (cbor_value_get_uint64 (&Element, Result));
+  CHECK_CBOR_DECODE_ERROR (cbor_value_get_uint64 (&Element, Result));
 
   return RETURN_SUCCESS;
 }
@@ -167,7 +167,7 @@ CborDecoderGetArrayNextMap (
   IN OUT UPL_DATA_DECODER  *NextMap
   )
 {
-  CHECK_CBOR_ERROR (cbor_value_advance (NextMap));
+  CHECK_CBOR_DECODE_ERROR (cbor_value_advance (NextMap));
 
   return RETURN_SUCCESS;
 }
@@ -182,7 +182,7 @@ CborDecoderGetArrayLengthAndFirstElement (
 {
   CborValue  Array;
 
-  CHECK_CBOR_ERROR (cbor_value_map_find_value (&RootValue, String, &Array));
+  CHECK_CBOR_DECODE_ERROR (cbor_value_map_find_value (&RootValue, String, &Array));
 
   if (cbor_value_is_valid (&Array) == FALSE) {
     return RETURN_NOT_FOUND;
@@ -192,7 +192,7 @@ CborDecoderGetArrayLengthAndFirstElement (
     return RETURN_INVALID_PARAMETER;
   }
 
-  CHECK_CBOR_ERROR (cbor_value_get_array_length (&Array, Size));
-  CHECK_CBOR_ERROR (cbor_value_enter_container (&Array, Map));
+  CHECK_CBOR_DECODE_ERROR (cbor_value_get_array_length (&Array, Size));
+  CHECK_CBOR_DECODE_ERROR (cbor_value_enter_container (&Array, Map));
   return RETURN_SUCCESS;
 }

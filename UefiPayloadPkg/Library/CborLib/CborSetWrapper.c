@@ -4,13 +4,26 @@
 #include <PiPei.h>
 #include <Library/MemoryAllocationLib.h>
 
+#define CHECK_CBOR_ENCODE_ERROR(Expression)    \
+    do {                                       \
+      switch (Expression)                      \
+      {                                        \
+      case CborNoError:                        \
+        break;                                 \
+      case CborErrorOutOfMemory:               \
+        return RETURN_OUT_OF_RESOURCES;        \
+      default:                                 \
+        return EFI_UNSUPPORTED;                \
+      }                                        \
+    } while (FALSE)
+
 CborEncoder  mSubMapEncoder;
 CborEncoder  mArrayEncoder;
 
 CborEncoder  *gRootMapEncoderPointer;
 
-// Low level APIs
-VOID
+RETURN_STATUS
+EFIAPI
 CborEncoderInit (
   OUT VOID  **RootEncoderPointer,
   OUT VOID  **RootMapEncoderPointer,
@@ -23,29 +36,23 @@ CborEncoderInit (
   *Buffer                = (UINT8 *)*RootEncoderPointer + 2*sizeof (CborEncoder);
 
   cbor_encoder_init (*RootEncoderPointer, *Buffer, size, 0);
-  cbor_encoder_create_map (*RootEncoderPointer, *RootMapEncoderPointer, CborIndefiniteLength);
+  CHECK_CBOR_ENCODE_ERROR (cbor_encoder_create_map (*RootEncoderPointer, *RootMapEncoderPointer, CborIndefiniteLength));
+  return RETURN_SUCCESS;
 }
 
-EFI_STATUS
+RETURN_STATUS
 EFIAPI
 CborEncoderCreateSubMap (
   VOID  *ParentEncoder,
   VOID  **Child
   )
 {
-  CborError  ErrorType;
-
-  ErrorType = cbor_encoder_create_map (ParentEncoder, &mSubMapEncoder, CborIndefiniteLength);
-  *Child    = &mSubMapEncoder;
-
-  if (ErrorType == 0) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_NOT_FOUND;
-  }
+  CHECK_CBOR_ENCODE_ERROR (cbor_encoder_create_map (ParentEncoder, &mSubMapEncoder, CborIndefiniteLength));
+  *Child = &mSubMapEncoder;
+  return RETURN_SUCCESS;
 }
 
-EFI_STATUS
+RETURN_STATUS
 EFIAPI
 CborEncoderCreateArray (
   VOID   *ParentEncoder,
@@ -53,37 +60,23 @@ CborEncoderCreateArray (
   UINTN  Length
   )
 {
-  CborError  ErrorType;
-
-  DEBUG ((EFI_D_ERROR, "KBT CborEncoderCreateArray \n"));
-  ErrorType     = cbor_encoder_create_array (ParentEncoder, &mArrayEncoder, Length);
+  CHECK_CBOR_ENCODE_ERROR (cbor_encoder_create_array (ParentEncoder, &mArrayEncoder, Length));
   *ArrayEncoder = &mArrayEncoder;
-  DEBUG ((EFI_D_ERROR, "KBT ErrorType: %d \n", ErrorType));
-  if (ErrorType == 0) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_NOT_FOUND;
-  }
+  return RETURN_SUCCESS;
 }
 
-EFI_STATUS
+RETURN_STATUS
 EFIAPI
 CborEncodeTextString (
   VOID         *MapEncoder,
   const CHAR8  *TextString
   )
 {
-  CborError  ErrorType;
-
-  ErrorType = cbor_encode_text_stringz (MapEncoder, TextString);
-  if (ErrorType == 0) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_NOT_FOUND;
-  }
+  CHECK_CBOR_ENCODE_ERROR (cbor_encode_text_stringz (MapEncoder, TextString));
+  return RETURN_SUCCESS;
 }
 
-EFI_STATUS
+RETURN_STATUS
 EFIAPI
 CborEncodeByteString (
   VOID         *MapEncoder,
@@ -91,87 +84,57 @@ CborEncodeByteString (
   UINTN        size
   )
 {
-  CborError  ErrorType;
+  CHECK_CBOR_ENCODE_ERROR (cbor_encode_byte_string (MapEncoder, ByteString, size));
 
-  ErrorType = cbor_encode_byte_string (MapEncoder, ByteString, size);
-
-  if (ErrorType == 0) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_NOT_FOUND;
-  }
+  return RETURN_SUCCESS;
 }
 
-EFI_STATUS
+RETURN_STATUS
 EFIAPI
 CborEncodeUint64 (
   VOID    *MapEncoder,
   UINT64  Value
   )
 {
-  CborError  ErrorType;
+  CHECK_CBOR_ENCODE_ERROR (cbor_encode_uint (MapEncoder, Value));
 
-  ErrorType = cbor_encode_uint (MapEncoder, Value);
-  DEBUG ((DEBUG_INFO, "KBT CborEncodeUint64 %d\n", ErrorType));
-  if (ErrorType == 0) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_NOT_FOUND;
-  }
+  return RETURN_SUCCESS;
 }
 
-EFI_STATUS
+RETURN_STATUS
 EFIAPI
 CborEncodeUint8 (
   VOID   *MapEncoder,
   UINT8  Value
   )
 {
-  CborError  ErrorType;
+  CHECK_CBOR_ENCODE_ERROR (cbor_encode_uint (MapEncoder, Value));
 
-  ErrorType = cbor_encode_uint (MapEncoder, Value);
-
-  if (ErrorType == 0) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_NOT_FOUND;
-  }
+  return RETURN_SUCCESS;
 }
 
-EFI_STATUS
+RETURN_STATUS
 EFIAPI
 CborEncodeBoolean (
   VOID     *MapEncoder,
   BOOLEAN  Value
   )
 {
-  CborError  ErrorType;
+  CHECK_CBOR_ENCODE_ERROR (cbor_encode_boolean (MapEncoder, Value));
 
-  ErrorType = cbor_encode_boolean (MapEncoder, Value);
-
-  if (ErrorType == 0) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_NOT_FOUND;
-  }
+  return RETURN_SUCCESS;
 }
 
-EFI_STATUS
+RETURN_STATUS
 EFIAPI
 CborEncoderCloseContainer (
   VOID  *ParentEncoder,
   VOID  *ContainerEncoder
   )
 {
-  CborError    ErrorType;
+  CHECK_CBOR_ENCODE_ERROR (cbor_encoder_close_container (ParentEncoder, ContainerEncoder));
 
-  ErrorType = cbor_encoder_close_container (ParentEncoder, ContainerEncoder);
-
-  if (ErrorType == 0) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_NOT_FOUND;
-  }
+  return RETURN_SUCCESS;
 }
 
 UINTN
@@ -181,10 +144,10 @@ CborGetBuffer (
   VOID  *Buffer
   )
 {
-  UINTN  used_size;
+  UINTN  UsedSize;
 
-  used_size = cbor_encoder_get_buffer_size (ParentEncoder, (const uint8_t *)Buffer);
-  DEBUG ((EFI_D_ERROR, "used_size: 0x%x \n", used_size));
+  UsedSize = cbor_encoder_get_buffer_size (ParentEncoder, (const uint8_t *)Buffer);
+  DEBUG ((EFI_D_ERROR, "used_size: 0x%x \n", UsedSize));
 
-  return used_size;
+  return UsedSize;
 }
