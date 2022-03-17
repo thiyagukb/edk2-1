@@ -31,7 +31,7 @@ CborEncoderInit (
   IN UINTN  size
   )
 {
-  *RootEncoderPointer    = (VOID *)AllocatePool (size + 2*sizeof (CborEncoder));
+  *RootEncoderPointer    = (VOID *)AllocatePages(EFI_SIZE_TO_PAGES(size + 2*sizeof (CborEncoder)));
   *RootMapEncoderPointer = (UINT8 *)*RootEncoderPointer + sizeof (CborEncoder);
   *Buffer                = (UINT8 *)*RootEncoderPointer + 2*sizeof (CborEncoder);
 
@@ -108,7 +108,7 @@ CborEncodeUint8 (
   UINT8  Value
   )
 {
-  CHECK_CBOR_ENCODE_ERROR (cbor_encode_uint (MapEncoder, Value));
+  CHECK_CBOR_ENCODE_ERROR (cbor_encode_simple_value (MapEncoder, Value));
 
   return RETURN_SUCCESS;
 }

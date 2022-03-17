@@ -86,8 +86,8 @@ SetUplBinary (
 {
   RETURN_STATUS  Status;
 
-  CHECK_ERROR (CCborEncodeTextString (RootMapEncoderPointer, Key));
-  CHECK_ERROR (CCborEncodeByteString (RootMapEncoderPointer, Value, Size));
+  CHECK_ERROR (CborEncodeTextString (RootMapEncoderPointer, Key));
+  CHECK_ERROR (CborEncodeByteString (RootMapEncoderPointer, Value, Size));
   return RETURN_SUCCESS;
 }
 
@@ -103,8 +103,8 @@ SetUplAsciiString (
   // todo :if value don't have a terminal character, Size will be the maxium number
   RETURN_STATUS  Status;
 
-  CHECK_ERROR (CCborEncodeTextString (RootMapEncoderPointer, Key));
-  CHECK_ERROR (CCborEncodeTextString (RootMapEncoderPointer, (const char *)Value));
+  CHECK_ERROR (CborEncodeTextString (RootMapEncoderPointer, Key));
+  CHECK_ERROR (CborEncodeTextString (RootMapEncoderPointer, (const char *)Value));
   return RETURN_SUCCESS;
 }
 
@@ -117,8 +117,8 @@ SetUplBoolean (
 {
   RETURN_STATUS  Status;
 
-  CHECK_ERROR (CCborEncodeTextString (RootMapEncoderPointer, Key));
-  CHECK_ERROR (CCborEncodeBoolean (RootMapEncoderPointer, Value));
+  CHECK_ERROR (CborEncodeTextString (RootMapEncoderPointer, Key));
+  CHECK_ERROR (CborEncodeBoolean (RootMapEncoderPointer, Value));
   return RETURN_SUCCESS;
 }
 
