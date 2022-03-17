@@ -9,6 +9,13 @@
 UPL_DATA_DECODER  RootValue;
 CborParser        Parser;
 
+#define CHECK_CBOR_ERROR(Expression)      \
+    do {                                  \
+      if (Expression != CborNoError) {    \
+        return RETURN_UNSUPPORTED;        \
+      }                                   \
+    } while (FALSE)
+
 RETURN_STATUS
 EFIAPI
 CborDecoderGetRootMap (
@@ -16,14 +23,9 @@ CborDecoderGetRootMap (
   IN UINTN  Size
   )
 {
-  CborError  ErrorType;
+  CHECK_CBOR_ERROR (cbor_parser_init (Buffer, Size, 0, &Parser, &RootValue));
 
-  ErrorType = cbor_parser_init (Buffer, Size, 0, &Parser, &RootValue);
-  if (ErrorType == 0) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_NOT_FOUND;
-  }
+  return RETURN_SUCCESS;
 }
 
 RETURN_STATUS
@@ -34,29 +36,32 @@ CborDecoderGetUint64 (
   IN  VOID    *Map
   )
 {
-  CborError  ErrorType;
   CborValue  Element;
 
   if (Map == NULL) {
     Map = &RootValue;
   }
 
-  ErrorType = cbor_value_map_find_value (Map, String, &Element);
-  ErrorType = cbor_value_get_uint64 (&Element, Result);
-
-  if (ErrorType == 0) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_NOT_FOUND;
+  CHECK_CBOR_ERROR (cbor_value_map_find_value (Map, String, &Element));
+  if (cbor_value_is_valid (&Element) == FALSE) {
+    return RETURN_NOT_FOUND;
   }
+
+  if (cbor_value_is_integer (&Element) == FALSE) {
+    return RETURN_INVALID_PARAMETER;
+  }
+
+  CHECK_CBOR_ERROR (cbor_value_get_uint64 (&Element, Result));
+
+  return RETURN_SUCCESS;
 }
 
 RETURN_STATUS
 EFIAPI
 CborDecoderGetUint8 (
-  IN  CHAR8   *String,
+  IN  CHAR8  *String,
   OUT UINT8  *Result,
-  IN  VOID    *Map
+  IN  VOID   *Map
   )
 {
   CborError  ErrorType;
@@ -92,6 +97,9 @@ CborDecoderGetBoolean (
   }
 
   ErrorType = cbor_value_map_find_value (Map, String, &Element);
+
+  DEBUG ((DEBUG_INFO, "ErrorType... %d\n", ErrorType));
+  DEBUG ((DEBUG_INFO, "Element->type... %d\n", Element.type));
   ErrorType = cbor_value_get_boolean (&Element, (bool *)Result);
 
   if (ErrorType == 0) {
@@ -159,15 +167,9 @@ CborDecoderGetArrayNextMap (
   IN OUT UPL_DATA_DECODER  *NextMap
   )
 {
-  CborError  ErrorType;
+  CHECK_CBOR_ERROR (cbor_value_advance (NextMap));
 
-  ErrorType = cbor_value_advance (NextMap);
-
-  if (ErrorType == 0) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_NOT_FOUND;
-  }
+  return RETURN_SUCCESS;
 }
 
 RETURN_STATUS
@@ -178,16 +180,19 @@ CborDecoderGetArrayLengthAndFirstElement (
   OUT    UPL_DATA_DECODER  *Map
   )
 {
-  CborError  ErrorType;
-
   CborValue  Array;
 
-  ErrorType = cbor_value_map_find_value (&RootValue, String, &Array);
-  ErrorType = cbor_value_get_array_length (&Array, Size);
-  ErrorType = cbor_value_enter_container (&Array, Map);
-  if (ErrorType == 0) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_NOT_FOUND;
+  CHECK_CBOR_ERROR (cbor_value_map_find_value (&RootValue, String, &Array));
+
+  if (cbor_value_is_valid (&Array) == FALSE) {
+    return RETURN_NOT_FOUND;
   }
+
+  if (cbor_value_is_array (&Array) == FALSE) {
+    return RETURN_INVALID_PARAMETER;
+  }
+
+  CHECK_CBOR_ERROR (cbor_value_get_array_length (&Array, Size));
+  CHECK_CBOR_ERROR (cbor_value_enter_container (&Array, Map));
+  return RETURN_SUCCESS;
 }

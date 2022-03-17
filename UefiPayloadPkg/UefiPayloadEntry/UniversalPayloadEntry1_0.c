@@ -238,6 +238,9 @@ Spec1_0Entry (
   FvHob              = GetFirstHob (EFI_HOB_TYPE_FV);
   FvHob->BaseAddress = (EFI_PHYSICAL_ADDRESS)(UINTN)*DxeFv;
   FvHob->Length      = (*DxeFv)->FvLength;
-
+  Status = GetUplUint64 ("MemoryMap", &Rsdp);
+  DEBUG ((DEBUG_INFO, "GetUplUint64 (MemorySpace, &ResourceAssigned);... %d\n", Status));
+  Status = GetUplUint64 ("MemorySpace1", &Rsdp);
+  DEBUG ((DEBUG_INFO, "GetUplUint64 (MemorySpace, &ResourceAssigned);... %d\n", Status));
   return EFI_SUCCESS;
 }

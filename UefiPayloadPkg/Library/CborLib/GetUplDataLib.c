@@ -10,7 +10,13 @@
 #include "CborGetWrapper.h"
 #include <Library/IoLib.h>
 
-#define ROW_LIMITER  16
+#define CHECK_ERROR(Expression)          \
+    do {                                 \
+      Status = Expression;               \
+      if (Status != RETURN_SUCCESS) {    \
+        return Status;                   \
+      }                                  \
+    } while (FALSE)
 
 RETURN_STATUS
 EFIAPI
@@ -35,8 +41,8 @@ GetUplUint64 (
 RETURN_STATUS
 EFIAPI
 GetUplUint8 (
-  IN  CHAR8   *String,
-  OUT UINT8   *Result
+  IN  CHAR8  *String,
+  OUT UINT8  *Result
   )
 {
   return CborDecoderGetUint8 (String, Result, NULL);
@@ -45,8 +51,8 @@ GetUplUint8 (
 RETURN_STATUS
 EFIAPI
 GetUplBoolean (
-  IN  CHAR8     *String,
-  OUT BOOLEAN   *Result
+  IN  CHAR8    *String,
+  OUT BOOLEAN  *Result
   )
 {
   return CborDecoderGetBoolean (String, Result, NULL);
@@ -56,7 +62,7 @@ RETURN_STATUS
 EFIAPI
 GetUplBinary (
   IN     CHAR8  *String,
-  IN OUT VOID  *Buffer,
+  IN OUT VOID   *Buffer,
   IN OUT UINTN  *Size
   )
 {
@@ -77,16 +83,17 @@ GetUplAsciiString (
 RETURN_STATUS
 EFIAPI
 GetUplExtraData (
-  IN OUT UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY       *Data,
-  IN OUT UINTN                                    *Count,
-  IN     UINTN                                    Index
+  IN OUT UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY  *Data,
+  IN OUT UINTN                               *Count,
+  IN     UINTN                               Index
   )
 {
   UINTN             Size, LocalIndex;
   UPL_DATA_DECODER  SubMap;
   UINTN             IdentifierSize;
+  RETURN_STATUS     Status;
 
-  CborDecoderGetArrayLengthAndFirstElement ("UplExtradata", &Size, &SubMap);
+  CHECK_ERROR (CborDecoderGetArrayLengthAndFirstElement ("UplExtradata", &Size, &SubMap));
   if (*Count == 0) {
     *Count = Size;
     return RETURN_BUFFER_TOO_SMALL;
@@ -100,18 +107,18 @@ GetUplExtraData (
   // Skip the first Index element.
   //
   for (LocalIndex = 0; LocalIndex < Index; LocalIndex++) {
-    CborDecoderGetArrayNextMap (&SubMap);
+    CHECK_ERROR (CborDecoderGetArrayNextMap (&SubMap));
   }
 
   for (LocalIndex = 0; LocalIndex < *Count && LocalIndex < (Size -Index); LocalIndex++) {
     if (LocalIndex != 0) {
-      CborDecoderGetArrayNextMap (&SubMap);
+      CHECK_ERROR (CborDecoderGetArrayNextMap (&SubMap));
     }
 
-    CborDecoderGetUint64 ("Base", &Data[LocalIndex].Base, &SubMap);
-    CborDecoderGetUint64 ("Size", &Data[LocalIndex].Size, &SubMap);
+    CHECK_ERROR (CborDecoderGetUint64 ("Base", &Data[LocalIndex].Base, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("Size", &Data[LocalIndex].Size, &SubMap));
     IdentifierSize = 16;
-    CborDecoderGetTextString ("Identifier", (UINT8 *)&Data[LocalIndex].Identifier, &IdentifierSize, &SubMap);
+    CHECK_ERROR (CborDecoderGetTextString ("Identifier", (UINT8 *)&Data[LocalIndex].Identifier, &IdentifierSize, &SubMap));
   }
 
   *Count = LocalIndex;
@@ -130,8 +137,9 @@ GetUplMemoryMap (
   UINTN             Size, LocalIndex;
   UPL_DATA_DECODER  SubMap;
   UINT64            Type;
+  RETURN_STATUS     Status;
 
-  CborDecoderGetArrayLengthAndFirstElement ("MemoryMap", &Size, &SubMap);
+  CHECK_ERROR (CborDecoderGetArrayLengthAndFirstElement ("MemoryMap", &Size, &SubMap));
   if (*Count == 0) {
     *Count = Size;
     return RETURN_BUFFER_TOO_SMALL;
@@ -145,19 +153,19 @@ GetUplMemoryMap (
   // Skip the first Index element.
   //
   for (LocalIndex = 0; LocalIndex < Index; LocalIndex++) {
-    CborDecoderGetArrayNextMap (&SubMap);
+    CHECK_ERROR (CborDecoderGetArrayNextMap (&SubMap));
   }
 
   for (LocalIndex = 0; LocalIndex < *Count && LocalIndex < (Size -Index); LocalIndex++) {
     if (LocalIndex != 0) {
-      CborDecoderGetArrayNextMap (&SubMap);
+      CHECK_ERROR (CborDecoderGetArrayNextMap (&SubMap));
     }
 
-    CborDecoderGetUint64 ("Base", &Data[LocalIndex].PhysicalStart, &SubMap);
-    CborDecoderGetUint64 ("NumberOfPages", &Data[LocalIndex].NumberOfPages, &SubMap);
-    CborDecoderGetUint64 ("Type", &Type, &SubMap);
-    Data[LocalIndex].Type = (UINT32) Type;
-    CborDecoderGetUint64 ("Attribute", &Data[LocalIndex].Attribute, &SubMap);
+    CHECK_ERROR (CborDecoderGetUint64 ("Base", &Data[LocalIndex].PhysicalStart, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("NumberOfPages", &Data[LocalIndex].NumberOfPages, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("Type", &Type, &SubMap));
+    Data[LocalIndex].Type = (UINT32)Type;
+    CHECK_ERROR (CborDecoderGetUint64 ("Attribute", &Data[LocalIndex].Attribute, &SubMap));
   }
 
   *Count = LocalIndex;
@@ -169,14 +177,15 @@ RETURN_STATUS
 EFIAPI
 GetUplPciRootBridges (
   IN OUT UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE  *Data,
-  IN OUT UINTN                                    *Count,
-  IN     UINTN                                    Index
+  IN OUT UINTN                              *Count,
+  IN     UINTN                              Index
   )
 {
   UINTN             Size, LocalIndex;
   UPL_DATA_DECODER  SubMap;
+  RETURN_STATUS     Status;
 
-  CborDecoderGetArrayLengthAndFirstElement ("RootBridgeInfo", &Size, &SubMap);
+  CHECK_ERROR (CborDecoderGetArrayLengthAndFirstElement ("RootBridgeInfo", &Size, &SubMap));
   if (*Count == 0) {
     *Count = Size;
     return RETURN_BUFFER_TOO_SMALL;
@@ -190,59 +199,60 @@ GetUplPciRootBridges (
   // Skip the first Index element.
   //
   for (LocalIndex = 0; LocalIndex < Index; LocalIndex++) {
-    CborDecoderGetArrayNextMap (&SubMap);
+    CHECK_ERROR (CborDecoderGetArrayNextMap (&SubMap));
   }
 
   for (LocalIndex = 0; LocalIndex < *Count && LocalIndex < (Size -Index); LocalIndex++) {
     if (LocalIndex != 0) {
-      CborDecoderGetArrayNextMap (&SubMap);
+      CHECK_ERROR (CborDecoderGetArrayNextMap (&SubMap));
     }
 
-    CborDecoderGetUint64 ("Segment", (UINT64 *)&Data[LocalIndex].Segment, &SubMap);
-    CborDecoderGetUint64 ("Supports", &Data[LocalIndex].Supports, &SubMap);
-    CborDecoderGetUint64 ("Attributes", &Data[LocalIndex].Attributes, &SubMap);
-    CborDecoderGetBoolean ("DmaAbove4G", &Data[LocalIndex].DmaAbove4G, &SubMap);
-    CborDecoderGetBoolean ("NoExtendedConfigSpace", &Data[LocalIndex].NoExtendedConfigSpace, &SubMap);
-    CborDecoderGetUint64 ("AllocationAttributes", &Data[LocalIndex].AllocationAttributes, &SubMap);
-    CborDecoderGetUint64 ("BusBase", &Data[LocalIndex].Bus.Base, &SubMap);
-    CborDecoderGetUint64 ("BusLimit", &Data[LocalIndex].Bus.Limit, &SubMap);
-    CborDecoderGetUint64 ("BusTranslation", &Data[LocalIndex].Bus.Translation, &SubMap);
-    CborDecoderGetUint64 ("IoBase", &Data[LocalIndex].Io.Base, &SubMap);
-    CborDecoderGetUint64 ("IoLimit", &Data[LocalIndex].Io.Limit, &SubMap);
-    CborDecoderGetUint64 ("IoTranslation", &Data[LocalIndex].Io.Translation, &SubMap);
-    CborDecoderGetUint64 ("MemBase", &Data[LocalIndex].Mem.Base, &SubMap);
-    CborDecoderGetUint64 ("MemLimit", &Data[LocalIndex].Mem.Limit, &SubMap);
-    CborDecoderGetUint64 ("MemTranslation", &Data[LocalIndex].Mem.Translation, &SubMap);
-    CborDecoderGetUint64 ("MemAbove4GBase", &Data[LocalIndex].MemAbove4G.Base, &SubMap);
-    CborDecoderGetUint64 ("MemAbove4GLimit", &Data[LocalIndex].MemAbove4G.Limit, &SubMap);
-    CborDecoderGetUint64 ("MemAbove4GTranslation", &Data[LocalIndex].MemAbove4G.Translation, &SubMap);
-    CborDecoderGetUint64 ("PMemBase", &Data[LocalIndex].PMem.Base, &SubMap);
-    CborDecoderGetUint64 ("PMemLimit", &Data[LocalIndex].PMem.Limit, &SubMap);
-    CborDecoderGetUint64 ("PMemTranslation", &Data[LocalIndex].PMem.Translation, &SubMap);
-    CborDecoderGetUint64 ("PMemAbove4GBase", &Data[LocalIndex].PMemAbove4G.Base, &SubMap);
-    CborDecoderGetUint64 ("PMemAbove4GLimit", &Data[LocalIndex].PMemAbove4G.Limit, &SubMap);
-    CborDecoderGetUint64 ("PMemAbove4GTranslation", &Data[LocalIndex].PMemAbove4G.Translation, &SubMap);
-    CborDecoderGetUint64 ("HID", (UINT64 *)&Data[LocalIndex].HID, &SubMap);
-    CborDecoderGetUint64 ("UID", (UINT64 *)&Data[LocalIndex].UID, &SubMap);
+    CHECK_ERROR (CborDecoderGetUint64 ("Segment", (UINT64 *)&Data[LocalIndex].Segment, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("Supports", &Data[LocalIndex].Supports, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("Attributes", &Data[LocalIndex].Attributes, &SubMap));
+    CHECK_ERROR (CborDecoderGetBoolean ("DmaAbove4G", &Data[LocalIndex].DmaAbove4G, &SubMap));
+    CHECK_ERROR (CborDecoderGetBoolean ("NoExtendedConfigSpace", &Data[LocalIndex].NoExtendedConfigSpace, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("AllocationAttributes", &Data[LocalIndex].AllocationAttributes, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("BusBase", &Data[LocalIndex].Bus.Base, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("BusLimit", &Data[LocalIndex].Bus.Limit, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("BusTranslation", &Data[LocalIndex].Bus.Translation, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("IoBase", &Data[LocalIndex].Io.Base, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("IoLimit", &Data[LocalIndex].Io.Limit, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("IoTranslation", &Data[LocalIndex].Io.Translation, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("MemBase", &Data[LocalIndex].Mem.Base, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("MemLimit", &Data[LocalIndex].Mem.Limit, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("MemTranslation", &Data[LocalIndex].Mem.Translation, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("MemAbove4GBase", &Data[LocalIndex].MemAbove4G.Base, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("MemAbove4GLimit", &Data[LocalIndex].MemAbove4G.Limit, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("MemAbove4GTranslation", &Data[LocalIndex].MemAbove4G.Translation, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("PMemBase", &Data[LocalIndex].PMem.Base, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("PMemLimit", &Data[LocalIndex].PMem.Limit, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("PMemTranslation", &Data[LocalIndex].PMem.Translation, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("PMemAbove4GBase", &Data[LocalIndex].PMemAbove4G.Base, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("PMemAbove4GLimit", &Data[LocalIndex].PMemAbove4G.Limit, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("PMemAbove4GTranslation", &Data[LocalIndex].PMemAbove4G.Translation, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("HID", (UINT64 *)&Data[LocalIndex].HID, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("UID", (UINT64 *)&Data[LocalIndex].UID, &SubMap));
   }
+
   *Count = LocalIndex;
 
   return EFI_SUCCESS;
 }
 
-
 RETURN_STATUS
 EFIAPI
 GetUplResourceData (
-  IN OUT UNIVERSAL_PAYLOAD_RESOURCE_DESCRIPTOR         *Data,
-  IN OUT UINTN                                    *Count,
-  IN     UINTN                                    Index
+  IN OUT UNIVERSAL_PAYLOAD_RESOURCE_DESCRIPTOR  *Data,
+  IN OUT UINTN                                  *Count,
+  IN     UINTN                                  Index
   )
 {
-  UINTN             Size,BinarySize, LocalIndex;
+  UINTN             Size, BinarySize, LocalIndex;
   UPL_DATA_DECODER  SubMap;
+  RETURN_STATUS     Status;
 
-  CborDecoderGetArrayLengthAndFirstElement ("Resource", &Size, &SubMap);
+  CHECK_ERROR (CborDecoderGetArrayLengthAndFirstElement ("Resource", &Size, &SubMap));
   if (*Count == 0) {
     *Count = Size;
     return RETURN_BUFFER_TOO_SMALL;
@@ -256,21 +266,22 @@ GetUplResourceData (
   // Skip the first Index element.
   //
   for (LocalIndex = 0; LocalIndex < Index; LocalIndex++) {
-    CborDecoderGetArrayNextMap (&SubMap);
+    CHECK_ERROR (CborDecoderGetArrayNextMap (&SubMap));
   }
 
   for (LocalIndex = 0; LocalIndex < *Count && LocalIndex < (Size -Index); LocalIndex++) {
     if (LocalIndex != 0) {
-      CborDecoderGetArrayNextMap (&SubMap);
+      CHECK_ERROR (CborDecoderGetArrayNextMap (&SubMap));
     }
-    BinarySize = sizeof(Data[LocalIndex].Owner);
-    CborDecoderGetBinary ("Owner", &Data[LocalIndex].Owner,&BinarySize, &SubMap);
-    CborDecoderGetUint64 ("Type", (UINT64 *)&Data[LocalIndex].ResourceType, &SubMap);
-    CborDecoderGetUint64 ("Attribute",(UINT64 *) &Data[LocalIndex].ResourceAttribute, &SubMap);
-    CborDecoderGetUint64 ("Base", (UINT64 *)&Data[LocalIndex].PhysicalStart, &SubMap);
-    CborDecoderGetUint64 ("Length", (UINT64 *)&Data[LocalIndex].ResourceLength, &SubMap);
 
+    BinarySize = sizeof (Data[LocalIndex].Owner);
+    CHECK_ERROR (CborDecoderGetBinary ("Owner", &Data[LocalIndex].Owner, &BinarySize, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("Type", (UINT64 *)&Data[LocalIndex].ResourceType, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("Attribute", (UINT64 *)&Data[LocalIndex].ResourceAttribute, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("Base", (UINT64 *)&Data[LocalIndex].PhysicalStart, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("Length", (UINT64 *)&Data[LocalIndex].ResourceLength, &SubMap));
   }
+
   *Count = LocalIndex;
 
   return EFI_SUCCESS;
@@ -279,15 +290,16 @@ GetUplResourceData (
 RETURN_STATUS
 EFIAPI
 GetUplMemoryAllocationData (
-  IN OUT UNIVERSAL_PAYLOAD_MEMORY_ALLOCATION           *Data,
-  IN OUT UINTN                                    *Count,
-  IN     UINTN                                    Index
+  IN OUT UNIVERSAL_PAYLOAD_MEMORY_ALLOCATION  *Data,
+  IN OUT UINTN                                *Count,
+  IN     UINTN                                Index
   )
 {
-  UINTN             Size,BinarySize, LocalIndex;
+  UINTN             Size, BinarySize, LocalIndex;
   UPL_DATA_DECODER  SubMap;
+  RETURN_STATUS     Status;
 
-  CborDecoderGetArrayLengthAndFirstElement ("ResourceAllocation", &Size, &SubMap);
+  CHECK_ERROR (CborDecoderGetArrayLengthAndFirstElement ("ResourceAllocation", &Size, &SubMap));
   if (*Count == 0) {
     *Count = Size;
     return RETURN_BUFFER_TOO_SMALL;
@@ -301,31 +313,22 @@ GetUplMemoryAllocationData (
   // Skip the first Index element.
   //
   for (LocalIndex = 0; LocalIndex < Index; LocalIndex++) {
-    CborDecoderGetArrayNextMap (&SubMap);
+    CHECK_ERROR (CborDecoderGetArrayNextMap (&SubMap));
   }
 
   for (LocalIndex = 0; LocalIndex < *Count && LocalIndex < (Size -Index); LocalIndex++) {
     if (LocalIndex != 0) {
-      CborDecoderGetArrayNextMap (&SubMap);
+      CHECK_ERROR (CborDecoderGetArrayNextMap (&SubMap));
     }
-    BinarySize = sizeof(Data[LocalIndex].Name);
-    CborDecoderGetBinary ("Name", &Data[LocalIndex].Name,&BinarySize, &SubMap);
-    CborDecoderGetUint64 ("Base", (UINT64 *)&Data[LocalIndex].MemoryBaseAddress, &SubMap);
-    CborDecoderGetUint64 ("Length", (UINT64 *)&Data[LocalIndex].MemoryLength, &SubMap);
-    CborDecoderGetUint64 ("Type", (UINT64 *)&Data[LocalIndex].MemoryType, &SubMap);
 
+    BinarySize = sizeof (Data[LocalIndex].Name);
+    CHECK_ERROR (CborDecoderGetBinary ("Name", &Data[LocalIndex].Name, &BinarySize, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("Base", (UINT64 *)&Data[LocalIndex].MemoryBaseAddress, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("Length", (UINT64 *)&Data[LocalIndex].MemoryLength, &SubMap));
+    CHECK_ERROR (CborDecoderGetUint64 ("Type", (UINT64 *)&Data[LocalIndex].MemoryType, &SubMap));
   }
+
   *Count = LocalIndex;
 
   return EFI_SUCCESS;
-}
-
-VOID
-EFIAPI
-GetCbor (
-  OUT VOID   *Buffer,
-  OUT UINTN  Size
-  )
-{
- 
 }
