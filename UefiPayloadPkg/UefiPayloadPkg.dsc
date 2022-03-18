@@ -275,6 +275,7 @@
   HobLib|UefiPayloadPkg/Library/PayloadEntryHobLib/HobLib.inf
   PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
   DxeHobListLib|UefiPayloadPkg/Library/DxeHobListLibNull/DxeHobListLibNull.inf
+  GetUplDataLib|UefiPayloadPkg/Library/UplData/GetUplDataLib/GetUplDataLib.inf
 
 [LibraryClasses.common.DXE_CORE]
   DxeHobListLib|UefiPayloadPkg/Library/DxeHobListLibNull/DxeHobListLibNull.inf
