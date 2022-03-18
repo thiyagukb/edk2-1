@@ -21,6 +21,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <UniversalPayload/UniversalPayload.h>
 #include <UniversalPayload/ExtraData.h>
 #include <UniversalPayload/SerialPortInfo.h>
+#include <Library/MemoryAllocationLib.h>
 
 RETURN_STATUS
 EFIAPI
@@ -28,11 +29,15 @@ SetUplDataBasedHob (
   VOID
   )
 {
-  UNIVERSAL_PAYLOAD_MEMORY_MAP  *MemoryMapHob;
-  UINT8                         *GuidHob;
-  RETURN_STATUS                 Status;
-  UNIVERSAL_PAYLOAD_ACPI_TABLE  *AcpiTable;
-  EFI_HOB_CPU                   *CpuHob;
+  UNIVERSAL_PAYLOAD_MEMORY_MAP            *MemoryMapHob;
+  UINT8                                   *GuidHob;
+  RETURN_STATUS                           Status;
+  UNIVERSAL_PAYLOAD_ACPI_TABLE            *AcpiTable;
+  EFI_HOB_CPU                             *CpuHob;
+  EFI_PEI_HOB_POINTERS                    HobBuffer;
+  UNIVERSAL_PAYLOAD_RESOURCE_DESCRIPTOR   *ResourceDescriptorBuffer;
+  UINTN                                   Count;
+  
 
   GuidHob      = GetFirstGuidHob (&gUniversalPayloadMemoryMapGuid);
   MemoryMapHob = (UNIVERSAL_PAYLOAD_MEMORY_MAP *)GET_GUID_HOB_DATA (GuidHob);
@@ -45,6 +50,33 @@ SetUplDataBasedHob (
   CpuHob = GetFirstHob (EFI_HOB_TYPE_CPU);
   SetUplUint8 ("MemorySpace", CpuHob->SizeOfMemorySpace);
   SetUplUint8 ("IoSpace", CpuHob->SizeOfIoSpace);
+  
+  HobBuffer.Raw = GetFirstHob (EFI_HOB_TYPE_RESOURCE_DESCRIPTOR);
+  
+  Count = 0;
+  while (!END_OF_HOB_LIST (HobBuffer)) {
+    if (HobBuffer.Header->HobType == EFI_HOB_TYPE_RESOURCE_DESCRIPTOR) {
+      Count++;
+    }
+    HobBuffer.Raw = GET_NEXT_HOB (HobBuffer);
+  }
+
+  ResourceDescriptorBuffer = AllocatePages(EFI_SIZE_TO_PAGES(sizeof(UNIVERSAL_PAYLOAD_RESOURCE_DESCRIPTOR)*Count));
+  HobBuffer.Raw = GetFirstHob (EFI_HOB_TYPE_RESOURCE_DESCRIPTOR);
+  
+  Count = 0;
+  while (!END_OF_HOB_LIST (HobBuffer)) {
+    if (HobBuffer.Header->HobType == EFI_HOB_TYPE_RESOURCE_DESCRIPTOR) {
+        CopyGuid(&ResourceDescriptorBuffer[Count].Owner,&HobBuffer.ResourceDescriptor->Owner);
+        ResourceDescriptorBuffer[Count].ResourceType = HobBuffer.ResourceDescriptor->ResourceType;
+        ResourceDescriptorBuffer[Count].ResourceAttribute = HobBuffer.ResourceDescriptor->ResourceAttribute;
+        ResourceDescriptorBuffer[Count].PhysicalStart = HobBuffer.ResourceDescriptor->PhysicalStart;
+        ResourceDescriptorBuffer[Count].ResourceLength = HobBuffer.ResourceDescriptor->ResourceLength;
+      Count++;
+    }
+    HobBuffer.Raw = GET_NEXT_HOB (HobBuffer);
+  }
+  SetUplResourceData(ResourceDescriptorBuffer,Count);
 
   return Status;
 }

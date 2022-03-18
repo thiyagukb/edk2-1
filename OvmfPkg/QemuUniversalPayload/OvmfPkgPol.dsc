@@ -749,7 +749,10 @@ gEfiMdePkgTokenSpaceGuid.PcdConfidentialComputingGuestAttr|0
       NULL|SecurityPkg/Library/HashInstanceLibSm3/HashInstanceLibSm3.inf
   }
 !endif
-  UefiPayloadPkg/PrepareForUniversalPayloadPeim/PrepareForUniversalPayloadPeim.inf
+  UefiPayloadPkg/PrepareForUniversalPayloadPeim/PrepareForUniversalPayloadPeim.inf {
+    <LibraryClasses>
+      NULL|MdePkg/Library/PeiMemoryAllocationLib/PeiMemoryAllocationLib.inf
+  }
 
 [Components.X64]
   #

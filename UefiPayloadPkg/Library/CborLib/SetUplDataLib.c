@@ -29,7 +29,7 @@ SetUplDataLibConstructor (
   CBOR_ROOTMAP_INFO  *Data;
   RETURN_STATUS      Status;
 
-  size = 2000;
+  size = 3000;
   DEBUG ((DEBUG_INFO, "KBT In TinyCborEncoderLibConstructor.\n"));
   Hob = (VOID *)GetFirstGuidHob (&CborRootmapHobGuid);
   if (Hob == NULL) {
@@ -285,8 +285,6 @@ SetUplResourceData (
   UINTN          Index;
   RETURN_STATUS  Status;
 
-  DEBUG ((EFI_D_ERROR, "KBT Data->Owner: %g \n", &Data->Owner));
-  DEBUG ((EFI_D_ERROR, "KBT sizeof(Data[Index].Owner: %x \n", sizeof (Data[0].Owner)));
   CHECK_ERROR (CborEncodeTextString (RootMapEncoderPointer, "Resource"));
   CHECK_ERROR (CborEncoderCreateArray (RootMapEncoderPointer, &ArrayEncoder, Count));
   for (Index = 0; Index < Count; Index++) {

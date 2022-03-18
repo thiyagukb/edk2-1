@@ -171,12 +171,12 @@ Spec1_0Entry (
   Count = 0;
   GetUplExtraData (NULL, &Count, 0);
   ExtraData = AllocatePool (Count * sizeof (UNIVERSAL_PAYLOAD_EXTRA_DATA_ENTRY));
-   
+
   GetUplExtraData (ExtraData, &Count, 0);
   DEBUG ((DEBUG_INFO, "GetUplExtraData... %d\n", Count));
   for (Index = 0; Index < Count; Index++) {
     DEBUG ((DEBUG_INFO, "GetUplExtraData... %a\n", (UINT8*)ExtraData[Index].Identifier));
-    
+
     if (AsciiStrCmp (ExtraData[Index].Identifier, "uefi_fv") == 0) {
       *DxeFv = (EFI_FIRMWARE_VOLUME_HEADER *)(UINTN)ExtraData[Index].Base;
       ASSERT ((*DxeFv)->FvLength == ExtraData[Index].Size);
@@ -209,6 +209,19 @@ Spec1_0Entry (
   GetUplUint8 ("IoSpace", &SizeOfIoSpace);
   BuildCpuHob(SizeOfMemorySpace, SizeOfIoSpace);
 
+  Count = 0;
+  GetUplResourceData(NULL, &Count, 0);
+  UNIVERSAL_PAYLOAD_RESOURCE_DESCRIPTOR *ResourceDesc;
+  UINTN ResDescInd;
+  ResourceDesc = AllocatePool (Count * sizeof (UNIVERSAL_PAYLOAD_RESOURCE_DESCRIPTOR));
+  GetUplResourceData(ResourceDesc, &Count, 0);
+  for(ResDescInd = 0;ResDescInd<Count;ResDescInd++) {
+    BuildResourceDescriptorHob(ResourceDesc[ResDescInd].ResourceType,
+                               ResourceDesc[ResDescInd].ResourceAttribute,
+                               ResourceDesc[ResDescInd].PhysicalStart,
+                               ResourceDesc[ResDescInd].ResourceLength);
+  }
+
   //
   // Build gUniversalPayloadPciRootBridgeInfoGuid Hob
   //
@@ -218,7 +231,7 @@ Spec1_0Entry (
   Count = 0;
   GetUplPciRootBridges (NULL, &Count, 0);
   RootBridge = AllocatePool (Count * sizeof (UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE));
-   
+
   GetUplPciRootBridges (RootBridge, &Count, 0);
   DEBUG ((DEBUG_INFO, "GetUplPciRootBridges... %d\n", Count));
 
