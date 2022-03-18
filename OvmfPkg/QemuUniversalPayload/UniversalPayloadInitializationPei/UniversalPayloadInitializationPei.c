@@ -417,16 +417,16 @@ UniversalPayloadInitialization (
   DEBUG ((DEBUG_INFO, "=====================Build UPL HOBs=======================================\n"));
 
 
-  SetUplUint64 ("SerialPortBaudRate", (UINT64)PcdGet32 (PcdSerialBaudRate));
-  SetUplBoolean ("SerialPortUseMmio", PcdGetBool (PcdSerialUseMmio));
-  SetUplUint64 ("SerialPortRegisterBase", (UINT64)PcdGet64 (PcdSerialRegisterBase));
-  SetUplUint8 ("SerialPortRegisterStride", PcdGet32 (PcdSerialRegisterStride));
+  SetUplUint64 (SERIAL_PORT_BAUDRATE, (UINT64)PcdGet32 (PcdSerialBaudRate));
+  SetUplBoolean (SERIAL_PORT_USE_MMIO, PcdGetBool (PcdSerialUseMmio));
+  SetUplUint64 (SERIAL_PORT_REGISTER_BASE, (UINT64)PcdGet64 (PcdSerialRegisterBase));
+  SetUplUint8 (SERIAL_PORT_REGISTER_STRIDE, PcdGet32 (PcdSerialRegisterStride));
 
   UNIVERSAL_PAYLOAD_PCI_ROOT_BRIDGE * RootBridge;
   UINTN         RootBridgeCount;
   RootBridge = PeiPciHostBridgeGetRootBridges(&RootBridgeCount);
   SetUplPciRootBridges (RootBridge, RootBridgeCount);
-  SetUplBoolean ("RootBridgeResourceAssigned", FALSE);
+  SetUplBoolean (ROOT_BRIDGE_RESOURCE_ASSIGNED, FALSE);
   
   return EFI_SUCCESS;
 }

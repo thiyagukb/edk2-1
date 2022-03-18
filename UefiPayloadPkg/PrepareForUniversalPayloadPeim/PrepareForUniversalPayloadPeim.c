@@ -39,11 +39,11 @@ SetUplDataFromHob (
 
   GuidHob   = GetFirstGuidHob (&gUniversalPayloadAcpiTableGuid);
   AcpiTable = (UNIVERSAL_PAYLOAD_ACPI_TABLE *)GET_GUID_HOB_DATA (GuidHob);
-  SetUplUint64 ("AcpiTableRsdp", (UINT64)AcpiTable->Rsdp);
+  SetUplUint64 (ACPI_TABLE_RSDP, (UINT64)AcpiTable->Rsdp);
 
   CpuHob = GetFirstHob (EFI_HOB_TYPE_CPU);
-  SetUplUint8 ("MemorySpace", CpuHob->SizeOfMemorySpace);
-  SetUplUint8 ("IoSpace", CpuHob->SizeOfIoSpace);
+  SetUplUint8 (MEMORY_SPACE, CpuHob->SizeOfMemorySpace);
+  SetUplUint8 (IO_SPACE, CpuHob->SizeOfIoSpace);
 
   return Status;
 }
@@ -71,7 +71,7 @@ PrepareForUniversalPayload (
   // HOB list may contain platform specific HOBs. Report the entire HobList to Payload.
   //
   Hob.Raw = (VOID *)GetHobList ();
-  SetUplUint64 ("HobList", (UINT64)(UINTN)Hob.Raw);
+  SetUplUint64 (HOB_LIST, (UINT64)(UINTN)Hob.Raw);
 
   //
   // Clean non-related Hobs to prove the ability of new UPL interface.

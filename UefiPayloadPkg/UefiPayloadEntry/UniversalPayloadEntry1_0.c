@@ -103,7 +103,7 @@ InitHobList (
   Serial                  = BuildGuidHob (&gUniversalPayloadSerialPortInfoGuid, sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO));
   Serial->Header.Revision = UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO_REVISION;
   Serial->Header.Length   = sizeof (UNIVERSAL_PAYLOAD_SERIAL_PORT_INFO);
-  Status                  =  GetUplUint64 ("SerialPortBaudRate", &BaudRate);
+  Status                  =  GetUplUint64 (SERIAL_PORT_BAUDRATE, &BaudRate);
   if (EFI_ERROR (Status)) {
     return EFI_NOT_FOUND;
   }
@@ -186,7 +186,7 @@ CreateHobsBasedOnUplData (
   UINT64                HobList;
   EFI_PEI_HOB_POINTERS  Hob;
 
-  Status = GetUplUint64 ("HobList", &HobList);
+  Status = GetUplUint64 (HOB_LIST, &HobList);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_INFO, "UPL data doesn't contain HobList\n"));
   } else {
@@ -212,7 +212,7 @@ CreateHobsBasedOnUplData (
   ACPI_BOARD_INFO               *AcpiBoardInfo;
   UNIVERSAL_PAYLOAD_ACPI_TABLE  *AcpiTableHob;
 
-  Status = GetUplUint64 ("AcpiTableRsdp", &Rsdp);
+  Status = GetUplUint64 (ACPI_TABLE_RSDP, &Rsdp);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_INFO, "UPL data doesn't contain HobList\n"));
   } else {
@@ -230,13 +230,13 @@ CreateHobsBasedOnUplData (
   UINT8  SizeOfMemorySpace;
   UINT8  SizeOfIoSpace;
 
-  Status = GetUplUint8 ("MemorySpace", &SizeOfMemorySpace);
+  Status = GetUplUint8 (MEMORY_SPACE, &SizeOfMemorySpace);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_INFO, "UPL data doesn't contain MemorySpace\n"));
     return EFI_NOT_FOUND;
   }
 
-  Status = GetUplUint8 ("IoSpace", &SizeOfIoSpace);
+  Status = GetUplUint8 (IO_SPACE, &SizeOfIoSpace);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_INFO, "UPL data doesn't contain IoSpace\n"));
     return EFI_NOT_FOUND;
