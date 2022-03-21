@@ -112,6 +112,33 @@ RETURN_STATUS
 CreateHobsBasedOnMemoryMap1_0 (
   );
 
+VOID
+EFIAPI
+UplBuildMemoryAllocationHob (
+  IN EFI_GUID              Name,
+  IN EFI_PHYSICAL_ADDRESS  BaseAddress,
+  IN UINT64                Length,
+  IN EFI_MEMORY_TYPE       MemoryType
+  )
+{
+  EFI_HOB_MEMORY_ALLOCATION  *Hob;
+
+  ASSERT (
+    ((BaseAddress & (EFI_PAGE_SIZE - 1)) == 0) &&
+    ((Length & (EFI_PAGE_SIZE - 1)) == 0)
+    );
+
+  Hob = CreateHob (EFI_HOB_TYPE_MEMORY_ALLOCATION, sizeof (EFI_HOB_MEMORY_ALLOCATION));
+
+  CopyGuid (&(Hob->AllocDescriptor.Name), &Name);
+  Hob->AllocDescriptor.MemoryBaseAddress = BaseAddress;
+  Hob->AllocDescriptor.MemoryLength      = Length;
+  Hob->AllocDescriptor.MemoryType        = MemoryType;
+  //
+  // Zero the reserved space to match HOB spec
+  //
+  ZeroMem (Hob->AllocDescriptor.Reserved, sizeof (Hob->AllocDescriptor.Reserved));
+}
 EFI_STATUS
 EFIAPI
 Spec1_0Entry (
@@ -220,6 +247,19 @@ Spec1_0Entry (
                                ResourceDesc[ResDescInd].ResourceAttribute,
                                ResourceDesc[ResDescInd].PhysicalStart,
                                ResourceDesc[ResDescInd].ResourceLength);
+  }
+
+  Count = 0;
+  GetUplMemoryAllocationData(NULL, &Count, 0);
+  UNIVERSAL_PAYLOAD_MEMORY_ALLOCATION *MemoryAllocationBuffer;
+  UINTN MemAllocIndex;
+  MemoryAllocationBuffer = AllocatePool (Count * sizeof (UNIVERSAL_PAYLOAD_MEMORY_ALLOCATION));
+  GetUplMemoryAllocationData(MemoryAllocationBuffer,&Count, 0);
+  for(MemAllocIndex = 0;MemAllocIndex<Count;MemAllocIndex++) {
+    UplBuildMemoryAllocationHob(MemoryAllocationBuffer[MemAllocIndex].Name,
+                                MemoryAllocationBuffer[MemAllocIndex].MemoryBaseAddress,
+                                MemoryAllocationBuffer[MemAllocIndex].MemoryLength,
+                                MemoryAllocationBuffer[MemAllocIndex].MemoryType);
   }
 
   //

@@ -36,8 +36,9 @@ SetUplDataBasedHob (
   EFI_HOB_CPU                             *CpuHob;
   EFI_PEI_HOB_POINTERS                    HobBuffer;
   UNIVERSAL_PAYLOAD_RESOURCE_DESCRIPTOR   *ResourceDescriptorBuffer;
+  UNIVERSAL_PAYLOAD_MEMORY_ALLOCATION     *MemoryAllocationBuffer;
   UINTN                                   Count;
-  
+
 
   GuidHob      = GetFirstGuidHob (&gUniversalPayloadMemoryMapGuid);
   MemoryMapHob = (UNIVERSAL_PAYLOAD_MEMORY_MAP *)GET_GUID_HOB_DATA (GuidHob);
@@ -50,9 +51,9 @@ SetUplDataBasedHob (
   CpuHob = GetFirstHob (EFI_HOB_TYPE_CPU);
   SetUplUint8 ("MemorySpace", CpuHob->SizeOfMemorySpace);
   SetUplUint8 ("IoSpace", CpuHob->SizeOfIoSpace);
-  
+
   HobBuffer.Raw = GetFirstHob (EFI_HOB_TYPE_RESOURCE_DESCRIPTOR);
-  
+
   Count = 0;
   while (!END_OF_HOB_LIST (HobBuffer)) {
     if (HobBuffer.Header->HobType == EFI_HOB_TYPE_RESOURCE_DESCRIPTOR) {
@@ -63,7 +64,7 @@ SetUplDataBasedHob (
 
   ResourceDescriptorBuffer = AllocatePages(EFI_SIZE_TO_PAGES(sizeof(UNIVERSAL_PAYLOAD_RESOURCE_DESCRIPTOR)*Count));
   HobBuffer.Raw = GetFirstHob (EFI_HOB_TYPE_RESOURCE_DESCRIPTOR);
-  
+
   Count = 0;
   while (!END_OF_HOB_LIST (HobBuffer)) {
     if (HobBuffer.Header->HobType == EFI_HOB_TYPE_RESOURCE_DESCRIPTOR) {
@@ -78,6 +79,30 @@ SetUplDataBasedHob (
   }
   SetUplResourceData(ResourceDescriptorBuffer,Count);
 
+  HobBuffer.Raw = GetFirstHob (EFI_HOB_TYPE_MEMORY_ALLOCATION);
+
+  Count = 0;
+  while (!END_OF_HOB_LIST (HobBuffer)) {
+    if (HobBuffer.Header->HobType == EFI_HOB_TYPE_MEMORY_ALLOCATION) {
+      Count++;
+    }
+    HobBuffer.Raw = GET_NEXT_HOB (HobBuffer);
+  }
+
+  MemoryAllocationBuffer = AllocatePages(EFI_SIZE_TO_PAGES(sizeof(UNIVERSAL_PAYLOAD_MEMORY_ALLOCATION)*Count));
+  HobBuffer.Raw = GetFirstHob (EFI_HOB_TYPE_MEMORY_ALLOCATION);
+  Count = 0;
+  while (!END_OF_HOB_LIST (HobBuffer)) {
+    if (HobBuffer.Header->HobType == EFI_HOB_TYPE_MEMORY_ALLOCATION) {
+        CopyGuid(&MemoryAllocationBuffer[Count].Name,&HobBuffer.MemoryAllocation->AllocDescriptor.Name);
+        MemoryAllocationBuffer[Count].MemoryBaseAddress = HobBuffer.MemoryAllocation->AllocDescriptor.MemoryBaseAddress;
+        MemoryAllocationBuffer[Count].MemoryLength = HobBuffer.MemoryAllocation->AllocDescriptor.MemoryLength;
+        MemoryAllocationBuffer[Count].MemoryType = HobBuffer.MemoryAllocation->AllocDescriptor.MemoryType;
+      Count++;
+    }
+    HobBuffer.Raw = GET_NEXT_HOB (HobBuffer);
+  }
+  SetUplMemoryAllocationData(MemoryAllocationBuffer,Count);
   return Status;
 }
 
